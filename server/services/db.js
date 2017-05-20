@@ -1,59 +1,41 @@
 var winston = require("./logger");
-// var MongoClient = require("mongodb").MongoClient;
-var url = process.env.DB_URI || "";
+var mongoose = require( 'mongoose' );
 
-var state = {
-    db: null,
-};
+// Build the connection string
+var localDbURI = 'mongodb://localhost:27017';
+var url = process.env.DB_URI || localDbURI;
 
-exports.connect = function(done) {
-    if (state.db) {
-        return done();
-    }
+exports.connect = function(done){
+    mongoose.connect(url);
 
-    // MongoClient.connect(url, function(err, db) {
-    //     winston.info("Connecting to datbase");
-    //     if (err) {
-    //         return done(err);
-    //     }
-    //     state.db = db;
-    //     // setIndexes();
-    //     winston.info("Database successfully connected: " + url);
-    //     done();
-    // });
-};
+    // CONNECTION EVENTS
+    // When successfully connected
+    mongoose.connection.on('connected', function () {
+      console.log('Mongoose default connection open to ' + url);
+      winston.info('Mongoose default connection open to ' + url);
+    });
 
-// function setIndexes() {
-//     winston.info("Indexing tweets date");
-//     state.db.collection("tweets").createIndex({
-//         "content.created_at": 1
-//     }, function(err, response) {
-//         if (err) {
-//             winston.warn("Error creating index on content.created_at");
-//             winston.warn(err);
-//         } else {
-//             winston.info(response);
-//         }
-//     });
-// }
+    // If the connection throws an error
+    mongoose.connection.on('error',function (err) {
+      console.log('Mongoose default connection error: ' + err);
+      winston.error('Mongoose default connection error: ' + err);
+    });
 
-exports.get = function() {
-    return state.db;
-};
+    // When the connection is disconnected
+    mongoose.connection.on('disconnected', function () {
+      console.log('Mongoose default connection disconnected');
+       winston.error('Mongoose default connection disconnected');
+    });
 
-exports.set = function(db) {
-    winston.info("setting database instance");
-    state.db = db;
-    return;
-};
+    // If the Node process ends, close the Mongoose connection
+    process.on('SIGINT', function() {
+      mongoose.connection.close(function () {
+        console.log('Mongoose default connection disconnected through app termination');
+         winston.error('Mongoose default connection disconnected through app termination');
+        process.exit(0);
+      });
+    });
+    return done();
+}
 
-exports.close = function(done) {
-    if (state.db) {
-        winston.info("closing database instance");
-        state.db.close(function(err, result) {
-            state.db = null;
-            state.mode = null;
-            done(err);
-        });
-    }
-};
+require('../schemas/Meal');

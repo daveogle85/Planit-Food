@@ -5,8 +5,7 @@ var db = require("./services/db");
 var session = require("express-session");
 var winston = require("./services/logger");
 var ws = require("./services/ws");
-// var twitterClient = require("./services/twitterClient");
-// var tweetRetrivalController = require("./controllers/tweetRetrival");
+var pages = require("./services/pages");
 
 module.exports = function(port, callback, rootUrl) {
 
@@ -14,7 +13,7 @@ module.exports = function(port, callback, rootUrl) {
 
     if (!rootUrl) {
         rootUrl = "http://localhost:3000";
-        //rootUrl = "http://twitterwalledi.azurewebsites.net";
+        //rootUrl = "http://planitfood.net";
     }
 
     var app = express();
@@ -35,13 +34,14 @@ module.exports = function(port, callback, rootUrl) {
             secure: false
         }
     }));
-    // twitterClient.setCallbackUrl(rootUrl + "/");
     app.use(require("./controllers"));
 
     // Connect to db
     db.connect(function(err, cb) {
         if (err) {
             exitServer("Unable to connect to Mongo.");
+        } else {
+            pages.index();
         }
     });
 
