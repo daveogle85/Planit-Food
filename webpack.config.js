@@ -59,8 +59,8 @@ module.exports = function makeWebpackConfig() {
    */
   config.output = isTest ? {} : {
     path: root('client/public'),
-    publicPath: isProd ? '/' : 'http://localhost:3000/public/',
-    filename: isProd ? '[name].[hash].js' : '[name].js',
+    publicPath: isProd ? '/' : 'http://localhost:3000/',
+    filename: isProd ? 'js/[name].[hash].js' : 'js/[name].js',
     chunkFilename: isProd ? '[id].[hash].chunk.js' : '[id].chunk.js'
   };
 
@@ -190,7 +190,7 @@ module.exports = function makeWebpackConfig() {
          * Transforms .scss files to .css
          */
         sassLoader: {
-          //includePaths: [path.resolve(__dirname, "node_modules/foundation-sites/scss")]
+          includePaths: [path.resolve(__dirname, "client/styles")]
         },
         /**
          * PostCSS

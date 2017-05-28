@@ -1,7 +1,7 @@
 {
   "name": "planit-food",
   "version": "1.0.0",
-  "description": "A app to manage the weekly food shop",
+  "description": "An app to manage the weekly food shop",
   "main": "server.js",
   "scripts": {
     "clean": "rimraf node_modules doc dist && npm cache clean",
@@ -14,7 +14,7 @@
     "build:client": "rimraf client/public && webpack --progress --profile --bail",
     "start:server": "npm run build && node dist/index.js",
     "start:client": "webpack-dev-server --inline --progress --port 3000",
-    "start": "npm run start:server"
+    "start": "npm run build:client && npm run start:server"
   },
   "repository": {
     "type": "git",
@@ -57,14 +57,14 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "2.0.2",
     "mongoose": "^4.10.2",
-    "node-sass": "^4.5.0",
+    "node-sass": "^4.5.3",
     "null-loader": "0.1.1",
     "postcss-loader": "^1.1.0",
     "protractor": "^4.0.10",
-    "raw-loader": "0.5.1",
+    "raw-loader": "^0.5.1",
     "remap-istanbul": "^0.6.4",
     "rimraf": "^2.5.1",
-    "sass-loader": "^6.0.1",
+    "sass-loader": "^6.0.5",
     "shelljs": "^0.7.0",
     "style-loader": "^0.13.0",
     "ts-helpers": "^1.1.1",
