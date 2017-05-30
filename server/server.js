@@ -18,7 +18,7 @@ module.exports = function(port, callback, rootUrl) {
 
     var app = express();
     // Set up paths
-    app.use("/", express.static(__dirname + "/../client"));
+    app.use("/", express.static(__dirname + "/../client/public"));
     app.use("/lib", express.static(__dirname + "/../node_modules"));
     app.use("/img", express.static(__dirname + "/../images"));
     // app.use("/login", express.static(__dirname + "/../client/index.html"));
