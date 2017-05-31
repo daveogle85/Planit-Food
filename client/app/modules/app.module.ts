@@ -9,7 +9,7 @@ import { DayCardComponent } from '../components/dayCard.component';
   ],
   declarations: [
     AppComponent,
-    DayCardComponent
+    DayCardComponent,
   ],
   bootstrap: [ AppComponent ],
 })
