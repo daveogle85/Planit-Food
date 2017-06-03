@@ -1,7 +1,9 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+
 import { AppComponent } from '../components/App/app.component';
 import { DayCardComponent } from '../components/DayCard/dayCard.component';
+import { CarouselComponent } from '../components/Carousel/carousel.component';
 
 import '../../styles/styles.scss';
 import '../../styles/headings.css';
@@ -13,6 +15,7 @@ import '../../styles/headings.css';
     declarations: [
         AppComponent,
         DayCardComponent,
+        CarouselComponent,
     ],
     bootstrap: [AppComponent],
 })
