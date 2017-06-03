@@ -6,3 +6,19 @@ logs/
 dist/
 
 client/public/
+
+client/app/main.js
+
+client/app/main.js.map
+
+client/app/modules/*.js
+
+client/app/modules/*.js.map
+
+client/app/test/*.js
+
+client/app/test/*.js.map
+
+client/app/components/*.js
+
+client/app/components/*.js.map
