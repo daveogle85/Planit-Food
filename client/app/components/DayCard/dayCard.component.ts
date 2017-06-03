@@ -2,8 +2,8 @@ import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'day-card',
-  templateUrl: '../templates/dayCard.component.html',
-  styleUrls: ['../styles/dayCard.component.scss'],
+  templateUrl: './dayCard.component.html',
+  styleUrls: ['./dayCard.component.scss'],
 })
 
 export class DayCardComponent {

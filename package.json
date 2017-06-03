@@ -7,7 +7,7 @@
     "clean": "rimraf node_modules doc dist && npm cache clean",
     "clean-install": "npm run clean && npm install",
     "watch": "webpack --watch --progress --profile",
-    "test": "rimraf dist && webpack --config config/webpack.prod.js --progress --profile --bail",
+    "test": "karma start",
     "lint": "tslint --force \"src/**/*.ts\"",
     "build:server": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "build": "npm run build:server && npm run build:client",
