@@ -3,14 +3,17 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from '../components/App/app.component';
 import { DayCardComponent } from '../components/DayCard/dayCard.component';
 
+import '../../styles/styles.scss';
+import '../../styles/headings.css';
+
 @NgModule({
-  imports: [
-    BrowserModule,
-  ],
-  declarations: [
-    AppComponent,
-    DayCardComponent,
-  ],
-  bootstrap: [ AppComponent ],
+    imports: [
+        BrowserModule,
+    ],
+    declarations: [
+        AppComponent,
+        DayCardComponent,
+    ],
+    bootstrap: [AppComponent],
 })
 export class AppModule { }
