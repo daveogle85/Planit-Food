@@ -1,4 +1,5 @@
 var webpackMerge = require('webpack-merge');
+var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var commonConfig = require('./webpack.common.js');
 var helpers = require('./helpers');
@@ -14,7 +15,12 @@ module.exports = webpackMerge(commonConfig, {
   },
 
   plugins: [
-    new ExtractTextPlugin('css/[name].css')
+    new ExtractTextPlugin('css/[name].css'),
+    new webpack.ProvidePlugin({
+      $: 'jquery',
+      jQuery: 'jquery',
+      "window.jQuery": 'jquery'
+    })
   ],
 
   devServer: {

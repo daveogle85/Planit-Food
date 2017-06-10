@@ -1,10 +1,14 @@
 <div class='carousel'>
-  <div class='carousel-day-card'>
-    <div><h3>1</h3></div>
-    <div><h3>2</h3></div>
-    <div><h3>3</h3></div>
-    <div><h3>4</h3></div>
-    <div><h3>5</h3></div>
-    <div><h3>6</h3></div>
-  </div>
+    <owl-carousel [options]="{
+        items: 3,
+        dots: true,
+        navigation: true,
+        loop:true,
+        nav: true,
+        center: true
+    }" [items]="test" [carouselClasses]="['owl-theme', 'row', 'sliding']">
+        <div class="slick-slide" *ngFor="let item of test">
+            {{item}}
+        </div>
+    </owl-carousel>
 </div>

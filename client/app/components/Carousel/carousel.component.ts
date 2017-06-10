@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import { Component } from '@angular/core';
+import * as $ from 'jquery';
 
 @Component({
     selector: 'carousel',
@@ -6,37 +7,13 @@ import {Component, OnInit} from '@angular/core';
     styleUrls: ['./carousel.component.scss'],
 })
 
-export class CarouselComponent implements OnInit {
-
-    public ngOnInit() {
-        $('.carousel-day-card').slick({
-            centerMode: true,
-            centerPadding: '160px',
-            slidesToShow: 3,
-            arrows: true,
-            focusOnSelect: true,
-            dots: true,
-            responsive: [
-                {
-                    breakpoint: 768,
-                    settings: {
-                        arrows: true,
-                        centerMode: true,
-                        centerPadding: '40px',
-                        slidesToShow: 3,
-                    },
-                },
-                {
-                    breakpoint: 480,
-                    settings: {
-                        arrows: false,
-                        centerMode: true,
-                        centerPadding: '40px',
-                        slidesToShow: 1,
-                    },
-                },
-            ],
-        });
-    }
-
+export class CarouselComponent {
+  public test: string[] = [
+    'cat',
+    'dog',
+    'rabbit',
+    'frog',
+    'lizzard',
+    'bat'
+  ];
 }

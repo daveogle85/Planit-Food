@@ -13,6 +13,9 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.js', '.sass', '.css'],
     modules: [helpers.root('app'), helpers.root('node_modules')],
+    alias: {
+        jquery: 'jquery/src/jquery'
+    }
   },
 
   module: {
