@@ -1,0 +1,14 @@
+<div class='carousel'>
+    <owl-carousel [options]="{
+        items: 3,
+        dots: true,
+        navigation: true,
+        loop:true,
+        nav: true,
+        center: true
+    }" [items]="test" [carouselClasses]="['owl-theme', 'row', 'sliding']">
+        <div class="slick-slide" *ngFor="let item of test">
+            {{item}}
+        </div>
+    </owl-carousel>
+</div>
