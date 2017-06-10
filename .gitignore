@@ -5,8 +5,6 @@ logs/
 
 dist/
 
-client/public/
-
 client/app/main.js
 
 client/app/main.js.map

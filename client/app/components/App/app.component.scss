@@ -1,17 +1,33 @@
-.main {
-  padding: 1em;
-  font-family: Arial, Helvetica, sans-serif;
-  text-align: center;
-  margin-top: 50px;
-  display: block;
+$fontColour: orange;
+@mixin app-font {
+    font-family: Averia; 
+    font-weight: normal; 
+    font-style: normal;
+    color: $fontColour;
 }
 
-$myColor: #9254c7;
+@font-face{
+    font-family: "Averia";
+    src: url(/Averia-Regular.ttf) format("truetype");   
+}
+
+.main {
+    padding: 1em;
+    text-align: center;
+    display: block;
+    @include app-font;
+}
+
+.card-wrapper {
+    display: flex;
+    justify-content: center;
+
+    .edge {
+        opacity: .5;
+        transform: scale(0.95);
+    }
+}
 
 h1 {
-    color: $myColor;
-}
-
-p {
-    color: $myColor;
+    font-size: 70px;
 }
