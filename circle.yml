@@ -1,5 +1,0 @@
-deployment:
-  prod:
-    branch: master
-    heroku:
-      appname: chat-grad-project-dave
