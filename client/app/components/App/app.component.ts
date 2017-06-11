@@ -9,4 +9,5 @@ import { mockMealList } from '../DayCard/DayCard';
 
 export class AppComponent {
     public dayCards = mockMealList();
+    public title = 'PlanIt Food';
 }
