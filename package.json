@@ -4,16 +4,15 @@
   "description": "An app to manage the weekly food shop",
   "main": "server.js",
   "scripts": {
-    "clean": "",
-    "clean-install": "",
+    "clean-build": "rimraf node_modules/ && npm i && cd /client && rimraf node_modules/ && npm i && cd .. && npm run build",
     "watch": "",
     "test": "",
     "lint": "",
     "build:server": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "build": "npm run build:server && npm run build:client",
-    "build:client": "",
+    "build:client": "cd client/ && npm run build && cd ..",
     "start:server": "npm run build:server && node dist/index.js",
-    "start:client": "",
+    "start:client": "cd client/ && npm run start",
     "start": "npm run build:client && npm run start:server"
   },
   "repository": {
