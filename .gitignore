@@ -11,6 +11,10 @@ client/public/index.html
 
 client/public/js
 
+client/public/css
+
+client/public/assets
+
 client/app/main.js
 
 client/app/main.js.map

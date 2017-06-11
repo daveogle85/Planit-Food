@@ -1,10 +1,5 @@
 <div class="main">
   <h1>PlanIt Food</h1>
-  <p class="card-wrapper"> Your week</p>
-    <div class="card-wrapper">
-      <day-card class="edge" [date]='dateForDayCard' [mealList]='mealList'></day-card>
-      <day-card [date]='dateForDayCard' [mealList]='mealList'></day-card>
-      <day-card class="edge" [date]='dateForDayCard' [mealList]='mealList'></day-card>
-    </div>
-  <carousel></carousel>
+  <p class="card-wrapper">Your week</p>
+  <carousel [dayCards]='dayCards'></carousel>
 </div>
