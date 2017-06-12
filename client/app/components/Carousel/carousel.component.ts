@@ -48,7 +48,9 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
     }
 
     public ngOnDestroy() {
-        this.owlElement.owlCarousel('destroy');
-        this.owlElement = null;
+        if (this.owlElement) {
+            this.owlElement.owlCarousel('destroy');
+            this.owlElement = null;
+        }
     }
 }
