@@ -4,6 +4,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from '../components/App/app.component';
 import { DayCardComponent } from '../components/DayCard/dayCard.component';
 import { CarouselComponent } from '../components/Carousel/carousel.component';
+import { HomeComponent } from '../components/Home/home.component';
+import { PlannerComponent } from '../components/Planner/planner.component';
 
 import '../../styles/styles.scss';
 
@@ -15,6 +17,8 @@ import '../../styles/styles.scss';
         AppComponent,
         DayCardComponent,
         CarouselComponent,
+        HomeComponent,
+        PlannerComponent
     ],
     bootstrap: [AppComponent],
 })

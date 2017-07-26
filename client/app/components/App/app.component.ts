@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { mockMealList } from '../DayCard/DayCard';
 import {ViewEncapsulation} from '@angular/core'
+import { View } from '../../enums';
+import { HomeView, PlannerView } from './Views';
 
 @Component({
   selector: 'my-app',
@@ -10,6 +11,17 @@ import {ViewEncapsulation} from '@angular/core'
 })
 
 export class AppComponent {
-    public dayCards = mockMealList();
     public title = 'PlanIt Food';
+    public view = HomeView;
+
+    public toggleButtonClick = () => {
+        switch (this.view.value) {
+            case View.HomeView:
+                this.view = PlannerView;
+                break;
+            default:
+                this.view = HomeView;
+                break;
+        }
+    }
 }
