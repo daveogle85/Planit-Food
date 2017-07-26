@@ -1,5 +1,5 @@
 @mixin card-texture {
-    background-image: url(/paper.png);
+    background-image: url('../../assets/images/paper.png');
 }
 
 .day-card {
@@ -18,13 +18,13 @@
         height: 35%;
         background-color: #3c3e82;
         border-radius: 10px 10px 0 0;
-        // box-shadow: 0 0 10px #1f1d1f;
+        box-shadow: 0 0 10px #1f1d1f;
         color: #f7f7e8;
         display: flex;
         flex-direction: column;
         justify-content: space-around;
-        // @include card-texture;
-        background-image: url(/gplay.png);
+        @include card-texture;
+        background-image: url('../../assets/images/gplay.png');
     }
 
     .day {

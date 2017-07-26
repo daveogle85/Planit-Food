@@ -6,7 +6,6 @@ import { DayCardComponent } from '../components/DayCard/dayCard.component';
 import { CarouselComponent } from '../components/Carousel/carousel.component';
 
 import '../../styles/styles.scss';
-import '../../styles/headings.css';
 
 @NgModule({
     imports: [

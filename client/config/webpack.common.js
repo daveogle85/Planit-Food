@@ -12,7 +12,7 @@ module.exports = {
 
   resolve: {
     extensions: ['.ts', '.js', '.sass', '.css'],
-    modules: [helpers.root('app'), helpers.root('node_modules')],
+    modules: [helpers.root('app'), helpers.root('node_modules'), helpers.root('styles')],
     alias: {
         jquery: 'jquery/src/jquery'
     }
@@ -43,18 +43,24 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        exclude: helpers.root('app'),
+        exclude: [helpers.root('app')],
         loader: ExtractTextPlugin.extract({ fallbackLoader: 'style-loader', loader: 'css-loader?sourceMap' })
       },
       {
         test: /\.scss$/,
         exclude: /node_modules/,
-        loaders: ['raw-loader', 'sass-loader'] // sass-loader not scss-loader
-      },
-      {
-        test: /\.css$/,
-        include: helpers.root('app'),
-        loader: ['to-string-loader','css-loader']
+        use: [{
+            loader: 'to-string-loader'
+        }, {
+            loader: "style-loader"
+        }, {
+            loader: "css-loader"
+        }, {
+            loader: "sass-loader",
+            options: {
+                includePaths: [helpers.root('styles'), helpers.root('app')]
+            }
+        }]
       }
     ]
   },
@@ -64,7 +70,7 @@ module.exports = {
     new webpack.ContextReplacementPlugin(
       // The (\\|\/) piece accounts for path separators in *nix and Windows
       /angular(\\|\/)core(\\|\/)(esm(\\|\/)app|app)(\\|\/)linker/,
-      helpers.root('./app'), // location of your src
+      helpers.root('app'), // location of your src
       {} // a map of your routes
     ),
 
