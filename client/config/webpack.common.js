@@ -12,7 +12,7 @@ module.exports = {
 
   resolve: {
     extensions: ['.ts', '.js', '.sass', '.css'],
-    modules: [helpers.root('app'), helpers.root('node_modules'), helpers.root('styles')],
+    modules: [helpers.root('app'), helpers.root('node_modules')],
     alias: {
         jquery: 'jquery/src/jquery'
     }
@@ -44,25 +44,22 @@ module.exports = {
       {
         test: /\.css$/,
         exclude: [helpers.root('app')],
-        loader: ExtractTextPlugin.extract({ fallbackLoader: 'style-loader', loader: 'css-loader?sourceMap' })
+        loader: ExtractTextPlugin.extract({ fallbackLoader: 'style-loader', loader: 'css-loader' })
       },
       {
         test: /\.scss$/,
         exclude: /node_modules/,
-        use: [{
-            loader: 'to-string-loader'
-        }, {
-            loader: "style-loader"
-        }, {
-            loader: "css-loader"
-        }, {
-            loader: "sass-loader",
-            options: {
-                includePaths: [helpers.root('styles'), helpers.root('app')]
-            }
-        }]
-      }
-    ]
+        loaders: ['exports-loader?module.exports.toString()','css-loader','resolve-url-loader','sass-loader?sourceMap']
+      },
+      {
+        test: /\.css$/,
+        include: helpers.root('app'),
+        use: [
+            {loader: 'css-loader'},
+            {loader: 'reslove-url-loader'},
+            {loader: 'to-string-loader'}
+        ]
+    }]
   },
 
   plugins: [

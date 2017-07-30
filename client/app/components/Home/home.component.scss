@@ -1,0 +1,9 @@
+.card-wrapper {
+    display: flex;
+    justify-content: center;
+
+    .edge {
+        opacity: .5;
+        transform: scale(0.95);
+    }
+}
