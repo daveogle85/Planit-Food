@@ -12,7 +12,7 @@ import java.util.Map;
 public class GraphQLDataFetchers {
 
     // TODO this static list will be a connection to the database
-    private static List<Map<String, String>> books = Arrays.asList(
+    private static final List<Map<String, String>> books = Arrays.asList(
             ImmutableMap.of("id",
                     "book-1",
                     "name",
@@ -39,7 +39,7 @@ public class GraphQLDataFetchers {
                     "author-3")
     );
 
-    private static List<Map<String, String>> authors = Arrays.asList(
+    private static final List<Map<String, String>> authors = Arrays.asList(
             ImmutableMap.of("id",
                     "author-1",
                     "firstName",
