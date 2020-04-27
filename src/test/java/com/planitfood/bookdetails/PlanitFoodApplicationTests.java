@@ -1,4 +1,4 @@
-package com.planitfood.planitfood;
+package com.planitfood.bookdetails;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
