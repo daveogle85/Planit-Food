@@ -15,6 +15,7 @@ scalar Date
 type Query {
     bookById(id: ID): Book
     dayByDate(date: [Date]): [Day!]!
+    ingredients: [Ingredient]
     mealById(id: ID): Meal
 }
 
@@ -46,7 +47,7 @@ type Ingredient {
 type Dish {
     id: ID!
     name: String!
-    ingredients: [Ingredient!]!
+    ingredients: [Ingredient!]
     notes: String
     cookingTime: Int
 }

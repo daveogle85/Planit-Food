@@ -1,4 +1,4 @@
-package com.planitfood.bookdetails;
+package com.planitfood.mealdetails;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -55,6 +55,28 @@ public class StaticData {
                     "lastName",
                     "Rice")
     );
+
+    private static final List<Map<String, String>> ingredients = Arrays.asList(
+            ImmutableMap.of(
+                    "name", "potato"
+            ),
+            ImmutableMap.of(
+                    "name", "beans"
+            ));
+
+//    private static final List<Map<String, String>> dishes = Arrays.asList(
+//            ImmutableMap.of(
+//                    "id", "1",
+//                    "name", "chips",
+//                    "ingredientIds", ['']
+//            ),
+//            ImmutableMap.of(
+//                    "name", "beans"
+//            ));
+
+    public static List<Map<String, String>> getIngredients() {
+        return ingredients;
+    }
 
     public static List<Map<String, String>> getBooks() {
         return books;

@@ -1,4 +1,4 @@
-package com.planitfood.bookdetails;
+package com.planitfood.mealdetails;
 
 import graphql.language.StringValue;
 import graphql.schema.*;
