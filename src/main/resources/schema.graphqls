@@ -1,5 +1,28 @@
+enum QuantityUnit {
+    UNIT,
+    KG,
+    G,
+    L,
+    OUNC,
+    ML,
+    PINT,
+    CUP,
+    POUND
+}
+
+scalar Date
+
 type Query {
     bookById(id: ID): Book
+    dayByDate(date: [Date]): [Day!]!
+    mealById(id: ID): Meal
+}
+
+type Mutation {
+    addIngredient(name: String, quantity: Float, unit: QuantityUnit = UNIT): Ingredient
+    addDish(name: String, ingredients: [String!]!, notes: String, cookingTime: Int): Dish
+    addMeal(main: ID, sides: [ID!]!, name: String, notes: String): Meal
+    addMealToDay(date: Date!, Meal: ID!, notes: String): Day
 }
 
 type Book {
@@ -13,4 +36,31 @@ type Author {
     id: ID
     firstName: String
     lastName: String
+}
+
+type Ingredient {
+    name: String!
+    quantity(unit: QuantityUnit = UNIT): Float
+}
+
+type Dish {
+    id: ID!
+    name: String!
+    ingredients: [Ingredient!]!
+    notes: String
+    cookingTime: Int
+}
+
+type Meal {
+    id: ID!
+    name: String
+    main: Dish!
+    sides: [Dish!]!
+    notes: String
+}
+
+type Day {
+    date: Date!
+    meal: Meal!
+    notes: String
 }
