@@ -45,11 +45,16 @@ public class GraphQLProvider {
         return RuntimeWiring.newRuntimeWiring()
                 .scalar(DateScalar.DATE)
                 .type(newTypeWiring("Query")
+                        .dataFetcher("dish", graphQLDataFetchers.getDishes())
                         .dataFetcher("ingredients", graphQLDataFetchers.getIngredients()))
-                .type(newTypeWiring("Query")
-                        .dataFetcher("bookById", graphQLDataFetchers.getBookByIdDataFetcher()))
-                .type(newTypeWiring("Book")
-                        .dataFetcher("author", graphQLDataFetchers.getAuthorDataFetcher()))
+
+                .type(newTypeWiring("Dish")
+                        .dataFetcher("ingredients", graphQLDataFetchers.getIngredientsForDish()))
+
+//                .type(newTypeWiring("Query")
+//                        .dataFetcher("bookById", graphQLDataFetchers.getBookByIdDataFetcher()))
+//                .type(newTypeWiring("Book")
+//                        .dataFetcher("author", graphQLDataFetchers.getAuthorDataFetcher()))
                 .build();
     }
 
