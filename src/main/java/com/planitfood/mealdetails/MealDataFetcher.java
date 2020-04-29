@@ -26,4 +26,11 @@ public class MealDataFetcher implements IDataFetcher {
     public DataFetcher getMeals() {
         return dataFetchingEnvironment -> PlanitFoodDataFetcher.valueFetcher(this, dataFetchingEnvironment);
     }
+
+    public DataFetcher getDishesForMeal() {
+        return dataFetchingEnvironment -> {
+            Meal meal = dataFetchingEnvironment.getSource();
+            return meal.getSides();
+        };
+    }
 }

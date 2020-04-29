@@ -45,9 +45,13 @@ public class GraphQLProvider {
         return RuntimeWiring.newRuntimeWiring()
                 .scalar(DateScalar.DATE)
                 .type(newTypeWiring("Query")
+                        .dataFetcher("dayByDate", planitFoodDataFetcher.getDaysForDateRange())
                         .dataFetcher("meals", planitFoodDataFetcher.getMeals())
                         .dataFetcher("dishes", planitFoodDataFetcher.getDishes())
                         .dataFetcher("ingredients", planitFoodDataFetcher.getIngredients()))
+
+                .type(newTypeWiring("Meal")
+                        .dataFetcher("sides", planitFoodDataFetcher.getDishesForMeal()))
 
                 .type(newTypeWiring("Dish")
                         .dataFetcher("ingredients", planitFoodDataFetcher.getIngredientsForDish()))

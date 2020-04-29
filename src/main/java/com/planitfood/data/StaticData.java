@@ -1,62 +1,17 @@
 package com.planitfood.data;
 
+import com.planitfood.models.Day;
 import com.planitfood.models.Dish;
 import com.planitfood.models.Ingredient;
 import com.planitfood.models.Meal;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
 public class StaticData {
 // TODO DELETE, these static lists will be a connection to the database
-
-//    private static final List<Map<String, String>> books = Arrays.asList(
-//            ImmutableMap.of("id",
-//                    "book-1",
-//                    "name",
-//                    "Harry Potter and the Philosopher's Stone",
-//                    "pageCount",
-//                    "223",
-//                    "authorId",
-//                    "author-1"),
-//            ImmutableMap.of("id",
-//                    "book-2",
-//                    "name",
-//                    "Moby Dick",
-//                    "pageCount",
-//                    "635",
-//                    "authorId",
-//                    "author-2"),
-//            ImmutableMap.of("id",
-//                    "book-3",
-//                    "name",
-//                    "Interview with the vampire",
-//                    "pageCount",
-//                    "371",
-//                    "authorId",
-//                    "author-3")
-//    );
-//
-//    private static final List<Map<String, String>> authors = Arrays.asList(
-//            ImmutableMap.of("id",
-//                    "author-1",
-//                    "firstName",
-//                    "Joanne",
-//                    "lastName",
-//                    "Rowling"),
-//            ImmutableMap.of("id",
-//                    "author-2",
-//                    "firstName",
-//                    "Herman",
-//                    "lastName",
-//                    "Melville"),
-//            ImmutableMap.of("id",
-//                    "author-3",
-//                    "firstName",
-//                    "Anne",
-//                    "lastName",
-//                    "Rice")
-//    );
 
     public static List<Ingredient> getIngredients() {
         ArrayList<Ingredient> ingredients = new ArrayList<>();
@@ -95,5 +50,23 @@ public class StaticData {
         meals.add(mealOne);
         meals.add(mealTwo);
         return meals;
+    }
+
+    public static List<Day> getDays(LocalDate startDate, LocalDate endDate) {
+        ArrayList<Day> days = new ArrayList<>();
+        List<Meal> meals = getMeals();
+        days.add(new Day(startDate, meals.get(0)));
+
+        if (endDate == null) {
+            endDate = startDate;
+        }
+
+        long numberOfDays = ChronoUnit.DAYS.between(startDate, endDate);
+
+        for (int i = 0; i < numberOfDays; i++) {
+            Day day = new Day(startDate, meals.get(i % 2));
+            days.add(day);
+        }
+        return days;
     }
 }

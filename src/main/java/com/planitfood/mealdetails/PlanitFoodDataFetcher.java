@@ -10,12 +10,21 @@ import java.util.List;
 @Component
 public class PlanitFoodDataFetcher {
 
+    private DayDataFetcher dayDataFetcher = new DayDataFetcher();
     private MealDataFetcher mealDataFetcher = new MealDataFetcher();
     private DishDataFetcher dishDataFetcher = new DishDataFetcher();
     private IngredientDataFetcher ingredientDataFetcher = new IngredientDataFetcher();
 
+    public DataFetcher getDaysForDateRange() {
+        return dayDataFetcher.getDaysForDateRange();
+    }
+
     public DataFetcher getMeals() {
         return mealDataFetcher.getMeals();
+    }
+
+    public DataFetcher getDishesForMeal() {
+        return mealDataFetcher.getDishesForMeal();
     }
 
     public DataFetcher getDishes() {

@@ -4,6 +4,7 @@ import graphql.language.StringValue;
 import graphql.schema.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public class DateScalar {
@@ -29,7 +30,7 @@ public class DateScalar {
 
     public static boolean isValidDate(String dateStr) {
         try {
-            LocalDate.parse(dateStr);
+            LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE);
         } catch (DateTimeParseException e) {
             return false;
         }

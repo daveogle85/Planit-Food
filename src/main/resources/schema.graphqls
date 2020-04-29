@@ -13,9 +13,7 @@ enum QuantityUnit {
 scalar Date
 
 type Query {
-    #    bookById(id: ID): Book
-    mealById(id: ID): Meal
-    dayByDate(date: [Date]): [Day!]!
+    dayByDate(startDate: Date!, endDate: Date): [Day!]
     ingredients(name: String): [Ingredient!]
     dishes(id: ID): [Dish!]
     meals(id: ID): [Meal!]
@@ -27,19 +25,6 @@ type Mutation {
     addMeal(main: ID, sides: [ID!]!, name: String, notes: String): Meal
     addMealToDay(date: Date!, Meal: ID!, notes: String): Day
 }
-
-#type Book {
-#    id: ID
-#    name: String
-#    pageCount: Int
-#    author: Author
-#}
-
-#type Author {
-#    id: ID
-#    firstName: String
-#    lastName: String
-#}
 
 type Ingredient {
     name: String!
@@ -58,7 +43,7 @@ type Meal {
     id: ID!
     name: String
     main: Dish!
-    sides: [Dish!]!
+    sides: [Dish!]
     notes: String
 }
 
