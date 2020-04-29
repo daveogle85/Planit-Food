@@ -9,35 +9,19 @@ public class IngredientMutation {
     public DataFetcher addIngredient() {
         return dataFetchingEnvironment -> {
             String name = dataFetchingEnvironment.getArgument("name");
-            Float quantity = Float.parseFloat(dataFetchingEnvironment.getArgument("quantity").toString());
+            Float quantity = null;
             Unit unit = Unit.valueOf(dataFetchingEnvironment.getArgument("unit"));
 
-            if (quantity != null && unit != null) {
-                return addIngredient(name, quantity, unit);
-            } else if (quantity != null) {
-                return addIngredient(name, quantity);
-            } else {
-                return addIngredient(name);
+            Double quantityDouble = dataFetchingEnvironment.getArgument("quantity");
+            if (quantityDouble != null) {
+                quantity = Float.parseFloat(quantityDouble.toString());
             }
+
+            Ingredient ingredient = new Ingredient(name);
+            if (quantity != null) ingredient.setQuantity(quantity);
+            if (unit != Unit.UNIT) ingredient.setUnit(unit);
+            return addIngredientToDatabase(ingredient);
         };
-    }
-
-    public Ingredient addIngredient(String name) {
-        Ingredient ingredient = new Ingredient(name);
-        return addIngredientToDatabase(ingredient);
-    }
-
-    public Ingredient addIngredient(String name, Float quantity) {
-        Ingredient ingredient = new Ingredient(name);
-        ingredient.setQuantity(quantity);
-        return addIngredientToDatabase(ingredient);
-    }
-
-    public Ingredient addIngredient(String name, Float quantity, Unit unit) {
-        Ingredient ingredient = new Ingredient(name);
-        ingredient.setQuantity(quantity);
-        ingredient.setUnit(unit);
-        return addIngredientToDatabase(ingredient);
     }
 
     private Ingredient addIngredientToDatabase(Ingredient ingredient) {

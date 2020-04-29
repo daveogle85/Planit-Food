@@ -7,7 +7,7 @@ public class Dish {
     private String name;
     private ArrayList<Ingredient> ingredients;
     private String notes;
-    private Double cookingTime;
+    private Float cookingTime;
 
     public Dish(String id, String name) {
         this.id = id;
@@ -53,11 +53,11 @@ public class Dish {
         this.notes = notes;
     }
 
-    public Double getCookingTime() {
+    public Float getCookingTime() {
         return cookingTime;
     }
 
-    public void setCookingTime(Double cookingTime) {
+    public void setCookingTime(Float cookingTime) {
         this.cookingTime = cookingTime;
     }
 }

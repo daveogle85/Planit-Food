@@ -21,7 +21,7 @@ type Query {
 
 type Mutation {
     addIngredient(name: String!, quantity: Float, unit: QuantityUnit = UNIT): Ingredient
-    addDish(name: String, ingredients: [String!]!, notes: String, cookingTime: Int): Dish
+    addDish(name: String!, ingredients: [String!], notes: String, cookingTime: Float): Dish
     addMeal(main: ID, sides: [ID!]!, name: String, notes: String): Meal
     addMealToDay(date: Date!, Meal: ID!, notes: String): Day
 }
@@ -36,7 +36,7 @@ type Dish {
     name: String!
     ingredients: [Ingredient!]
     notes: String
-    cookingTime: Int
+    cookingTime: Float
 }
 
 type Meal {

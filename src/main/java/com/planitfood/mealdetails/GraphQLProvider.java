@@ -53,7 +53,8 @@ public class GraphQLProvider {
                         .dataFetcher("dishes", planitFoodDataFetcher.getDishes())
                         .dataFetcher("ingredients", planitFoodDataFetcher.getIngredients()))
                 .type(newTypeWiring("Mutation")
-                        .dataFetcher("addIngredient", planitFoodDataMutation.addIngredient()))
+                        .dataFetcher("addIngredient", planitFoodDataMutation.addIngredient())
+                        .dataFetcher("addDish", planitFoodDataMutation.addDish()))
 
                 .type(newTypeWiring("Meal")
                         .dataFetcher("sides", planitFoodDataFetcher.getDishesForMeal()))
