@@ -2,13 +2,14 @@ package com.planitfood.data;
 
 import com.planitfood.models.Dish;
 import com.planitfood.models.Ingredient;
+import com.planitfood.models.Meal;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class StaticData {
 // TODO DELETE, these static lists will be a connection to the database
-    
+
 //    private static final List<Map<String, String>> books = Arrays.asList(
 //            ImmutableMap.of("id",
 //                    "book-1",
@@ -79,5 +80,20 @@ public class StaticData {
         dishes.add(bakedBeans);
         dishes.add(pie);
         return dishes;
+    }
+
+    public static List<Meal> getMeals() {
+        ArrayList<Meal> meals = new ArrayList<>();
+        Meal mealOne = new Meal("meal-1");
+        List<Dish> dishes = getDishes();
+        mealOne.setMain(dishes.get(2));
+        mealOne.addSide(dishes.get(1));
+        mealOne.addSide(dishes.get(0));
+        Dish hotpot = new Dish("dish-4", "Hotpot");
+        Meal mealTwo = new Meal("meal-2");
+        mealTwo.setMain(hotpot);
+        meals.add(mealOne);
+        meals.add(mealTwo);
+        return meals;
     }
 }

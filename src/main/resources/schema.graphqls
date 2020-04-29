@@ -16,8 +16,9 @@ type Query {
     #    bookById(id: ID): Book
     mealById(id: ID): Meal
     dayByDate(date: [Date]): [Day!]!
-    ingredients(name: String): [Ingredient]
-    dish(id: ID): [Dish]
+    ingredients(name: String): [Ingredient!]
+    dishes(id: ID): [Dish!]
+    meals(id: ID): [Meal!]
 }
 
 type Mutation {

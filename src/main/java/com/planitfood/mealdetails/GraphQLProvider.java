@@ -22,7 +22,7 @@ import static graphql.schema.idl.TypeRuntimeWiring.newTypeWiring;
 public class GraphQLProvider {
 
     @Autowired
-    GraphQLDataFetchers graphQLDataFetchers;
+    PlanitFoodDataFetcher planitFoodDataFetcher;
 
     private GraphQL graphQL;
 
@@ -45,16 +45,12 @@ public class GraphQLProvider {
         return RuntimeWiring.newRuntimeWiring()
                 .scalar(DateScalar.DATE)
                 .type(newTypeWiring("Query")
-                        .dataFetcher("dish", graphQLDataFetchers.getDishes())
-                        .dataFetcher("ingredients", graphQLDataFetchers.getIngredients()))
+                        .dataFetcher("meals", planitFoodDataFetcher.getMeals())
+                        .dataFetcher("dishes", planitFoodDataFetcher.getDishes())
+                        .dataFetcher("ingredients", planitFoodDataFetcher.getIngredients()))
 
                 .type(newTypeWiring("Dish")
-                        .dataFetcher("ingredients", graphQLDataFetchers.getIngredientsForDish()))
-
-//                .type(newTypeWiring("Query")
-//                        .dataFetcher("bookById", graphQLDataFetchers.getBookByIdDataFetcher()))
-//                .type(newTypeWiring("Book")
-//                        .dataFetcher("author", graphQLDataFetchers.getAuthorDataFetcher()))
+                        .dataFetcher("ingredients", planitFoodDataFetcher.getIngredientsForDish()))
                 .build();
     }
 
