@@ -1,6 +1,7 @@
-package com.planitfood.mealdetails;
+package com.planitfood.queries;
 
 import com.planitfood.data.StaticData;
+import com.planitfood.mealdetails.PlanitFoodDataFetcher;
 import com.planitfood.models.Dish;
 import com.planitfood.models.Ingredient;
 import graphql.schema.DataFetcher;

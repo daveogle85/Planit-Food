@@ -24,6 +24,9 @@ public class GraphQLProvider {
     @Autowired
     PlanitFoodDataFetcher planitFoodDataFetcher;
 
+    @Autowired
+    PlanitFoodDataMutation planitFoodDataMutation;
+
     private GraphQL graphQL;
 
     @PostConstruct
@@ -49,6 +52,8 @@ public class GraphQLProvider {
                         .dataFetcher("meals", planitFoodDataFetcher.getMeals())
                         .dataFetcher("dishes", planitFoodDataFetcher.getDishes())
                         .dataFetcher("ingredients", planitFoodDataFetcher.getIngredients()))
+                .type(newTypeWiring("Mutation")
+                        .dataFetcher("addIngredient", planitFoodDataMutation.addIngredient()))
 
                 .type(newTypeWiring("Meal")
                         .dataFetcher("sides", planitFoodDataFetcher.getDishesForMeal()))

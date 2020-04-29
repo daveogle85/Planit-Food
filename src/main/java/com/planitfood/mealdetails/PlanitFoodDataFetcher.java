@@ -1,5 +1,6 @@
 package com.planitfood.mealdetails;
 
+import com.planitfood.queries.*;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import org.springframework.stereotype.Component;

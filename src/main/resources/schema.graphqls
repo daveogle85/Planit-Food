@@ -3,7 +3,7 @@ enum QuantityUnit {
     KG,
     G,
     L,
-    OUNC,
+    OUNCE,
     ML,
     PINT,
     CUP,
@@ -20,7 +20,7 @@ type Query {
 }
 
 type Mutation {
-    addIngredient(name: String, quantity: Float, unit: QuantityUnit = UNIT): Ingredient
+    addIngredient(name: String!, quantity: Float, unit: QuantityUnit = UNIT): Ingredient
     addDish(name: String, ingredients: [String!]!, notes: String, cookingTime: Int): Dish
     addMeal(main: ID, sides: [ID!]!, name: String, notes: String): Meal
     addMealToDay(date: Date!, Meal: ID!, notes: String): Day

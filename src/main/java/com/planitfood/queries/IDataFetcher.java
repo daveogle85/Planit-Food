@@ -1,4 +1,4 @@
-package com.planitfood.mealdetails;
+package com.planitfood.queries;
 
 import graphql.schema.DataFetchingEnvironment;
 

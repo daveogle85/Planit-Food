@@ -1,4 +1,4 @@
-package com.planitfood.mealdetails;
+package com.planitfood.queries;
 
 import com.planitfood.data.StaticData;
 import com.planitfood.models.Day;
