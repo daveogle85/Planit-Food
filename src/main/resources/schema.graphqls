@@ -10,6 +10,12 @@ enum QuantityUnit {
     POUND
 }
 
+enum DishType {
+    MAIN,
+    SIDE,
+    DESERT
+}
+
 scalar Date
 
 type Query {
@@ -21,9 +27,9 @@ type Query {
 
 type Mutation {
     addIngredient(name: String!, quantity: Float, unit: QuantityUnit = UNIT): Ingredient
-    addDish(name: String!, ingredients: [String!], notes: String, cookingTime: Float): Dish
-    addMeal(main: ID, sides: [ID!]!, name: String, notes: String): Meal
-    addMealToDay(date: Date!, Meal: ID!, notes: String): Day
+    addDish(name: String!, dishType: DishType, ingredients: [String!], notes: String, cookingTime: Float): Dish
+    addMeal(name: String!, dishes: [ID!], notes: String): Meal
+    addMealToDay(date: Date!, meal: ID, notes: String): Day
 }
 
 type Ingredient {
@@ -32,18 +38,18 @@ type Ingredient {
 }
 
 type Dish {
-    id: ID
+    id: ID!
     name: String!
     ingredients: [Ingredient!]
     notes: String
     cookingTime: Float
+    dishType: DishType
 }
 
 type Meal {
     id: ID!
-    name: String
-    main: Dish!
-    sides: [Dish!]
+    name: String!
+    dishes: [Dish!]
     notes: String
 }
 

@@ -1,10 +1,13 @@
 package com.planitfood.models;
 
+import com.planitfood.enums.DishType;
+
 import java.util.ArrayList;
 
 public class Dish {
     private String id;
     private String name;
+    private DishType dishType;
     private ArrayList<Ingredient> ingredients;
     private String notes;
     private Float cookingTime;
@@ -59,5 +62,13 @@ public class Dish {
 
     public void setCookingTime(Float cookingTime) {
         this.cookingTime = cookingTime;
+    }
+
+    public DishType getDishType() {
+        return dishType;
+    }
+
+    public void setDishType(DishType dishType) {
+        this.dishType = dishType;
     }
 }

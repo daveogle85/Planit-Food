@@ -52,9 +52,12 @@ public class GraphQLProvider {
                         .dataFetcher("meals", planitFoodDataFetcher.getMeals())
                         .dataFetcher("dishes", planitFoodDataFetcher.getDishes())
                         .dataFetcher("ingredients", planitFoodDataFetcher.getIngredients()))
+
                 .type(newTypeWiring("Mutation")
-                        .dataFetcher("addIngredient", planitFoodDataMutation.addIngredient())
-                        .dataFetcher("addDish", planitFoodDataMutation.addDish()))
+                        .dataFetcher("addMealToDay", planitFoodDataMutation.addDay())
+                        .dataFetcher("addMeal", planitFoodDataMutation.addMeal())
+                        .dataFetcher("addDish", planitFoodDataMutation.addDish())
+                        .dataFetcher("addIngredient", planitFoodDataMutation.addIngredient()))
 
                 .type(newTypeWiring("Meal")
                         .dataFetcher("sides", planitFoodDataFetcher.getDishesForMeal()))

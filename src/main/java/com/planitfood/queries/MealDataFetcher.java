@@ -31,7 +31,7 @@ public class MealDataFetcher implements IDataFetcher {
     public DataFetcher getDishesForMeal() {
         return dataFetchingEnvironment -> {
             Meal meal = dataFetchingEnvironment.getSource();
-            return meal.getSides();
+            return meal.getDishes();
         };
     }
 }

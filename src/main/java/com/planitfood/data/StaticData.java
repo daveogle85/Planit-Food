@@ -1,5 +1,6 @@
 package com.planitfood.data;
 
+import com.planitfood.enums.DishType;
 import com.planitfood.models.Day;
 import com.planitfood.models.Dish;
 import com.planitfood.models.Ingredient;
@@ -31,6 +32,9 @@ public class StaticData {
         Dish pie = new Dish("dish-3", "Chicken Pie");
         chips.addIngredient(new Ingredient("Potato"));
         bakedBeans.addIngredient(new Ingredient("Beans"));
+        chips.setDishType(DishType.SIDE);
+        bakedBeans.setDishType(DishType.SIDE);
+        pie.setDishType(DishType.MAIN);
         dishes.add(chips);
         dishes.add(bakedBeans);
         dishes.add(pie);
@@ -39,14 +43,14 @@ public class StaticData {
 
     public static List<Meal> getMeals() {
         ArrayList<Meal> meals = new ArrayList<>();
-        Meal mealOne = new Meal("meal-1");
+        Meal mealOne = new Meal("meal-1", "My first meal");
         List<Dish> dishes = getDishes();
-        mealOne.setMain(dishes.get(2));
-        mealOne.addSide(dishes.get(1));
-        mealOne.addSide(dishes.get(0));
+        mealOne.addDish(dishes.get(2));
+        mealOne.addDish(dishes.get(1));
+        mealOne.addDish(dishes.get(0));
         Dish hotpot = new Dish("dish-4", "Hotpot");
-        Meal mealTwo = new Meal("meal-2");
-        mealTwo.setMain(hotpot);
+        Meal mealTwo = new Meal("meal-2", "Hotpot");
+        mealTwo.addDish(hotpot);
         meals.add(mealOne);
         meals.add(mealTwo);
         return meals;

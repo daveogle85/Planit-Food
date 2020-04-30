@@ -1,6 +1,6 @@
 package com.planitfood.mutations;
 
-import com.planitfood.mealdetails.Unit;
+import com.planitfood.enums.Unit;
 import com.planitfood.models.Ingredient;
 import graphql.schema.DataFetcher;
 

@@ -1,5 +1,6 @@
 package com.planitfood.mutations;
 
+import com.planitfood.enums.DishType;
 import com.planitfood.models.Dish;
 import com.planitfood.models.Ingredient;
 import graphql.schema.DataFetcher;
@@ -11,6 +12,10 @@ public class DishMutation {
         return dataFetchingEnvironment -> {
             String name = dataFetchingEnvironment.getArgument("name");
             String id = name + "_id"; // Will be a UUID or ID from the database
+            DishType dishType = null;
+            if (dataFetchingEnvironment.getArgument("dishType") != null) {
+                dishType = DishType.valueOf(dataFetchingEnvironment.getArgument("dishType"));
+            }
             ArrayList<String> ingredients = dataFetchingEnvironment.getArgument("ingredients");
             String notes = dataFetchingEnvironment.getArgument("notes");
             Float cookingTime = null;
@@ -21,6 +26,7 @@ public class DishMutation {
             }
 
             Dish dish = new Dish(id, name);
+            if (dishType != null) dish.setDishType(dishType);
             if (ingredients != null) dish = setIngredients(dish, ingredients);
             if (notes != null) dish.setNotes(notes);
             if (cookingTime != null) dish.setCookingTime(cookingTime);

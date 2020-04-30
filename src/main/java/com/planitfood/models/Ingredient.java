@@ -1,6 +1,6 @@
 package com.planitfood.models;
 
-import com.planitfood.mealdetails.Unit;
+import com.planitfood.enums.Unit;
 
 public class Ingredient {
 

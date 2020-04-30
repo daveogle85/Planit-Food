@@ -6,12 +6,12 @@ public class Meal {
 
     String id;
     String name;
-    Dish main;
-    ArrayList<Dish> sides;
+    ArrayList<Dish> dishes;
     String notes;
 
-    public Meal(String id) {
+    public Meal(String id, String name) {
         this.id = id;
+        this.name = name;
     }
 
     public String getId() {
@@ -30,28 +30,20 @@ public class Meal {
         this.name = name;
     }
 
-    public Dish getMain() {
-        return main;
+    public ArrayList<Dish> getDishes() {
+        return dishes;
     }
 
-    public void setMain(Dish main) {
-        this.main = main;
+    public void setDishes(ArrayList<Dish> dishes) {
+        this.dishes = dishes;
     }
 
-    public ArrayList<Dish> getSides() {
-        return sides;
-    }
-
-    public void setSides(ArrayList<Dish> sides) {
-        this.sides = sides;
-    }
-
-    public void addSide(Dish side) {
-        if (this.sides == null) {
-            this.sides = new ArrayList<>();
+    public void addDish(Dish dish) {
+        if (this.dishes == null) {
+            this.dishes = new ArrayList<>();
         }
 
-        this.sides.add(side);
+        this.dishes.add(dish);
     }
 
     public String getNotes() {
