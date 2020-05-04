@@ -1,7 +1,7 @@
 package com.planitfood.controllers;
 
 import com.planitfood.data.StaticData;
-import com.planitfood.exceptions.IngredientNotFoundException;
+import com.planitfood.exceptions.EntityNotFoundException;
 import com.planitfood.models.Ingredient;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,19 +15,19 @@ public class IngredientController {
         return StaticData.getIngredients();
     }
 
-    @PostMapping("/ingredients")
-    Ingredient newIngredient(@RequestBody Ingredient newIngredient) {
-        System.out.println("new Ingredient added");
-        return newIngredient;
-    }
-
     @GetMapping("/ingredients/{name}")
-    Ingredient one(@PathVariable String name) throws IngredientNotFoundException {
+    Ingredient one(@PathVariable String name) throws EntityNotFoundException {
         return StaticData.getIngredients().stream()
                 .filter(i -> i.getName().toLowerCase()
                 .equals(name.toLowerCase()))
                 .findFirst()
-                .orElseThrow(() -> new IngredientNotFoundException(name));
+                .orElseThrow(() -> new EntityNotFoundException("ingredient", name));
+    }
+
+    @PostMapping("/ingredients")
+    Ingredient newIngredient(@RequestBody Ingredient newIngredient) {
+        System.out.println("new Ingredient added");
+        return newIngredient;
     }
 
     @PutMapping("/ingredients/{name}")

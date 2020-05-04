@@ -1,6 +1,7 @@
 package com.planitfood.controllers;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.planitfood.restApi.PlanitFoodApplication;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,21 +20,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ContextConfiguration(classes = PlanitFoodApplication.class)
-@WebMvcTest(IngredientController.class)
-public class IngredientsTests {
-
+@WebMvcTest(MealController.class)
+public class MealsTests {
     @Autowired
     private MockMvc mockMvc;
 
     @Test
     public void shouldReturnAll() throws Exception {
-        ResultActions resultActions = this.mockMvc.perform(get("/ingredients"))
+        ResultActions resultActions = this.mockMvc.perform(get("/meals"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .serializeNulls()
+                .create();
+
         Object object = gson.
-                fromJson(new FileReader(new File("src\\test\\resources\\mockResponses\\ingredients.json")
+                fromJson(new FileReader(new File("src\\test\\resources\\mockResponses\\meals.json")
                         .getAbsolutePath()), Object.class);
         String expectedResult = gson.toJson(object);
 
@@ -43,14 +46,17 @@ public class IngredientsTests {
     }
 
     @Test
-    public void shouldReturnNamedIngredient() throws Exception {
-        ResultActions resultActions = this.mockMvc.perform(get("/ingredients/carrot"))
+    public void shouldReturnMealById() throws Exception {
+        ResultActions resultActions = this.mockMvc.perform(get("/meals/meal-1"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .serializeNulls()
+                .create();
+
         Object object = gson.
-                fromJson(new FileReader(new File("src\\test\\resources\\mockResponses\\ingredient.json")
+                fromJson(new FileReader(new File("src\\test\\resources\\mockResponses\\meal.json")
                         .getAbsolutePath()), Object.class);
         String expectedResult = gson.toJson(object);
 
