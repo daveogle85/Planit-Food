@@ -1,0 +1,60 @@
+[
+  {
+    "id": "meal-1",
+    "name": "My first meal",
+    "dishes": [
+      {
+        "id": "dish-3",
+        "name": "Chicken Pie",
+        "dishType": "MAIN",
+        "ingredients": null,
+        "notes": null,
+        "cookingTime": null
+      },
+      {
+        "id": "dish-2",
+        "name": "Baked Beans",
+        "dishType": "SIDE",
+        "ingredients": [
+          {
+            "name": "Beans",
+            "quantity": 0.0,
+            "unit": "UNIT"
+          }
+        ],
+        "notes": null,
+        "cookingTime": null
+      },
+      {
+        "id": "dish-1",
+        "name": "Chips",
+        "dishType": "SIDE",
+        "ingredients": [
+          {
+            "name": "Potato",
+            "quantity": 0.0,
+            "unit": "UNIT"
+          }
+        ],
+        "notes": null,
+        "cookingTime": null
+      }
+    ],
+    "notes": null
+  },
+  {
+    "id": "meal-2",
+    "name": "Hotpot",
+    "dishes": [
+      {
+        "id": "dish-4",
+        "name": "Hotpot",
+        "dishType": null,
+        "ingredients": null,
+        "notes": null,
+        "cookingTime": null
+      }
+    ],
+    "notes": null
+  }
+]

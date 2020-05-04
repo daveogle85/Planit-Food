@@ -1,0 +1,60 @@
+enum QuantityUnit {
+    UNIT,
+    KG,
+    G,
+    L,
+    OUNCE,
+    ML,
+    PINT,
+    CUP,
+    POUND
+}
+
+enum DishType {
+    MAIN,
+    SIDE,
+    DESERT
+}
+
+scalar Date
+
+type Query {
+    dayByDate(startDate: Date!, endDate: Date): [Day!]
+    ingredients(name: String): [Ingredient!]
+    dishes(id: ID): [Dish!]
+    meals(id: ID): [Meal!]
+}
+
+type Mutation {
+    addIngredient(name: String!, quantity: Float, unit: QuantityUnit = UNIT): Ingredient
+    addDish(name: String!, dishType: DishType, ingredients: [String!], notes: String, cookingTime: Float): Dish
+    addMeal(name: String!, dishes: [ID!], notes: String): Meal
+    addMealToDay(date: Date!, meal: ID, notes: String): Day
+}
+
+type Ingredient {
+    name: String!
+    quantity(unit: QuantityUnit = UNIT): Float
+}
+
+type Dish {
+    id: ID!
+    name: String!
+    ingredients: [Ingredient!]
+    notes: String
+    cookingTime: Float
+    dishType: DishType
+}
+
+type Meal {
+    id: ID!
+    name: String!
+    dishes: [Dish!]
+    notes: String
+}
+
+type Day {
+    date: Date!
+    meal: Meal!
+    notes: String
+}
