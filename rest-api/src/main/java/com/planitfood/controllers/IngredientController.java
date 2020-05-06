@@ -1,33 +1,48 @@
 package com.planitfood.controllers;
 
+import com.planitfood.data.IngredientsDataHandler;
 import com.planitfood.data.StaticData;
 import com.planitfood.exceptions.EntityNotFoundException;
 import com.planitfood.models.Ingredient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@ComponentScan({"com.planitfood.data"})
 public class IngredientController {
 
+    private IngredientsDataHandler ingredientsDataHandler;
+
+    @Autowired
+    public IngredientController(IngredientsDataHandler ingredientsDataHandler) {
+        this.ingredientsDataHandler = ingredientsDataHandler;
+    }
+
     @GetMapping("/ingredients")
-    List<Ingredient> all() {
+    List<Ingredient> search(@RequestParam String searchString) {
         return StaticData.getIngredients();
     }
 
     @GetMapping("/ingredients/{name}")
     Ingredient one(@PathVariable String name) throws EntityNotFoundException {
-        return StaticData.getIngredients().stream()
-                .filter(i -> i.getName().toLowerCase()
-                .equals(name.toLowerCase()))
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("ingredient", name));
+        try {
+            return ingredientsDataHandler.getIngredientByName(name);
+        } catch (Exception e) {
+            throw new EntityNotFoundException("ingredient", name);
+        }
     }
 
     @PostMapping("/ingredients")
     Ingredient newIngredient(@RequestBody Ingredient newIngredient) {
-        System.out.println("new Ingredient added");
-        return newIngredient;
+        try {
+            ingredientsDataHandler.addIngredient(newIngredient);
+            return newIngredient;
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     @PutMapping("/ingredients/{name}")
