@@ -5,10 +5,14 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.planitfood.models.Ingredient;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class IngredientsDataHandler {
@@ -34,7 +38,24 @@ public class IngredientsDataHandler {
                 .orElseThrow(() -> new Exception("No ingredient of that name returned"));
     }
 
-    public void addIngredient(Ingredient ingredient) {
+    public void saveIngredient(Ingredient ingredient) {
         dynamoDBMapper.save(ingredient);
+    }
+
+    // Must be exact name
+    public void deleteIngredient(String name) {
+        final Ingredient toDelete = new Ingredient(name);
+        this.dynamoDBMapper.delete(toDelete);
+    }
+
+    public List<Ingredient> findIngredientsBeginningWith(String searchString) throws Exception {
+        Map<String, AttributeValue> eav = new HashMap();
+        eav.put(":val1", new AttributeValue().withS(searchString));
+
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+                .withFilterExpression("contains(SearchName, :val1)").withExpressionAttributeValues(eav);
+
+        List<Ingredient> matchedIngredients = dynamoDBMapper.scan(Ingredient.class, scanExpression);
+        return matchedIngredients;
     }
 }

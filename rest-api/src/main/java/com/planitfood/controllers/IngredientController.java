@@ -1,7 +1,6 @@
 package com.planitfood.controllers;
 
 import com.planitfood.data.IngredientsDataHandler;
-import com.planitfood.data.StaticData;
 import com.planitfood.exceptions.EntityNotFoundException;
 import com.planitfood.models.Ingredient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +21,12 @@ public class IngredientController {
     }
 
     @GetMapping("/ingredients")
-    List<Ingredient> search(@RequestParam String searchString) {
-        return StaticData.getIngredients();
+    List<Ingredient> search(@RequestParam String searchString) throws Exception {
+        try {
+            return ingredientsDataHandler.findIngredientsBeginningWith(searchString);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     @GetMapping("/ingredients/{name}")
@@ -38,7 +41,7 @@ public class IngredientController {
     @PostMapping("/ingredients")
     Ingredient newIngredient(@RequestBody Ingredient newIngredient) {
         try {
-            ingredientsDataHandler.addIngredient(newIngredient);
+            ingredientsDataHandler.saveIngredient(newIngredient);
             return newIngredient;
         } catch (Exception e) {
             throw e;
@@ -47,12 +50,16 @@ public class IngredientController {
 
     @PutMapping("/ingredients/{name}")
     Ingredient replaceIngredient(@RequestBody Ingredient newIngredient, @PathVariable String name) {
-        System.out.println("Did a put with " + name);
-        return new Ingredient(name);
+        try {
+            ingredientsDataHandler.saveIngredient(newIngredient);
+            return newIngredient;
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     @DeleteMapping("/ingredients/{name}")
     void deleteIngredient(@PathVariable String name) {
-        System.out.println("Deleted " + name);
+        ingredientsDataHandler.deleteIngredient(name);
     }
 }
