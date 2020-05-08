@@ -12,26 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StaticData {
-// TODO DELETE, these static lists will be a connection to the database
-
-    public static List<Ingredient> getIngredients() {
-        ArrayList<Ingredient> ingredients = new ArrayList<>();
-        Ingredient potato = new Ingredient("Potato");
-        Ingredient beans = new Ingredient("Beans");
-        Ingredient carrot = new Ingredient("Carrot");
-        ingredients.add(potato);
-        ingredients.add(beans);
-        ingredients.add(carrot);
-        return ingredients;
-    }
-
     public static List<Dish> getDishes() {
         ArrayList<Dish> dishes = new ArrayList<>();
         Dish chips = new Dish("dish-1", "Chips");
         Dish bakedBeans = new Dish("dish-2", "Baked Beans");
         Dish pie = new Dish("dish-3", "Chicken Pie");
-        chips.addIngredient(new Ingredient("Potato"));
-        bakedBeans.addIngredient(new Ingredient("Beans"));
+        chips.addIngredient(new Ingredient("i1", "Potato"));
+        bakedBeans.addIngredient(new Ingredient("i2", "Beans"));
         chips.setDishType(DishType.SIDE);
         bakedBeans.setDishType(DishType.SIDE);
         pie.setDishType(DishType.MAIN);

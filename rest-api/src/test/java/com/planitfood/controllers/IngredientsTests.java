@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.planitfood.data.IngredientsDataHandler;
 import com.planitfood.models.Ingredient;
 import com.planitfood.restApi.PlanitFoodApplication;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -30,26 +32,37 @@ public class IngredientsTests {
     IngredientsDataHandler ingredientsDataHandler;
 
     @Test
+    public void shouldReturnAllIngredients() throws Exception {
+        String url = "/ingredients";
+        mockMvc.perform(get(url))
+                .andExpect(status().isOk());
+
+        verify(ingredientsDataHandler, times(1)).getAllIngredients();
+    }
+
+    @Test
     public void shouldSearchForIngredient() throws Exception {
         String url = "/ingredients?searchString=mel";
         mockMvc.perform(get(url))
                 .andExpect(status().isOk());
 
-        verify(ingredientsDataHandler, times(1)).findIngredientsBeginningWith("mel");
+        verify(ingredientsDataHandler, times(1))
+                .findIngredientsBeginningWith("mel");
     }
 
     @Test
-    public void shouldReturnNamedIngredient() throws Exception {
-        String url = "/ingredients/melon";
+    public void shouldReturnIngredientById() throws Exception {
+        String url = "/ingredients/123";
         mockMvc.perform(get(url))
                 .andExpect(status().isOk());
 
-        verify(ingredientsDataHandler, times(1)).getIngredientByName("melon");
+        verify(ingredientsDataHandler, times(1)).getIngredientById("123");
     }
 
     @Test
     public void shouldAddANewIngredient() throws Exception {
-        Ingredient test = new Ingredient("Melon");
+        Ingredient test = new Ingredient();
+        test.setName("Melon");
         String url = "/ingredients";
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
@@ -60,13 +73,17 @@ public class IngredientsTests {
                 .content(requestJson))
                 .andExpect(status().isOk());
 
-        verify(ingredientsDataHandler, times(1)).saveIngredient(test);
+        ArgumentCaptor<Ingredient> argumentCaptor = ArgumentCaptor.forClass(Ingredient.class);
+        verify(ingredientsDataHandler, times(1)).addIngredient(argumentCaptor.capture());
+        Assertions.assertEquals("Melon", argumentCaptor.getValue().getName());
+        Assertions.assertEquals("melon", argumentCaptor.getValue().getSearchName());
     }
 
     @Test
     public void shouldUpdateIngredient() throws Exception {
-        Ingredient update = new Ingredient("Melon");
-        String url = "/ingredients/melon";
+        Ingredient update = new Ingredient("123");
+        update.setName("Melon");
+        String url = "/ingredients";
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
@@ -76,13 +93,16 @@ public class IngredientsTests {
                 .content(requestJson))
                 .andExpect(status().isOk());
 
-        verify(ingredientsDataHandler, times(1)).saveIngredient(update);
+        ArgumentCaptor<Ingredient> argumentCaptor = ArgumentCaptor.forClass(Ingredient.class);
+        verify(ingredientsDataHandler, times(1)).updateIngredient(argumentCaptor.capture());
+        Assertions.assertEquals("Melon", argumentCaptor.getValue().getName());
+        Assertions.assertEquals("123", argumentCaptor.getValue().getId());
     }
 
     @Test
     public void shouldDeleteIngredient() throws Exception {
-        mockMvc.perform(delete("/ingredients/Melon"))
+        mockMvc.perform(delete("/ingredients/123"))
                 .andExpect(status().isOk());
-        verify(ingredientsDataHandler, times(1)).deleteIngredient("Melon");
+        verify(ingredientsDataHandler, times(1)).deleteIngredient("123");
     }
 }

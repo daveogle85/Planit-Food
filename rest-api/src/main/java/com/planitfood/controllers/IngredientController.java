@@ -21,45 +21,50 @@ public class IngredientController {
     }
 
     @GetMapping("/ingredients")
-    List<Ingredient> search(@RequestParam String searchString) throws Exception {
+    List<Ingredient> search(
+            @RequestParam(required = false) String searchString
+    ) throws Exception {
         try {
+            if (searchString == null) {
+                return ingredientsDataHandler.getAllIngredients();
+            }
             return ingredientsDataHandler.findIngredientsBeginningWith(searchString);
         } catch (Exception e) {
             throw e;
         }
     }
 
-    @GetMapping("/ingredients/{name}")
-    Ingredient one(@PathVariable String name) throws EntityNotFoundException {
+    @GetMapping("/ingredients/{id}")
+    Ingredient one(@PathVariable String id) throws EntityNotFoundException {
         try {
-            return ingredientsDataHandler.getIngredientByName(name);
+            return ingredientsDataHandler.getIngredientById(id);
         } catch (Exception e) {
-            throw new EntityNotFoundException("ingredient", name);
+            throw new EntityNotFoundException("ingredient", id);
         }
     }
 
     @PostMapping("/ingredients")
     Ingredient newIngredient(@RequestBody Ingredient newIngredient) {
         try {
-            ingredientsDataHandler.saveIngredient(newIngredient);
+            ingredientsDataHandler.addIngredient(newIngredient);
             return newIngredient;
         } catch (Exception e) {
             throw e;
         }
     }
 
-    @PutMapping("/ingredients/{name}")
-    Ingredient replaceIngredient(@RequestBody Ingredient newIngredient, @PathVariable String name) {
+    @PutMapping("/ingredients")
+    Ingredient replaceIngredient(@RequestBody Ingredient newIngredient) throws Exception {
         try {
-            ingredientsDataHandler.saveIngredient(newIngredient);
+            ingredientsDataHandler.updateIngredient(newIngredient);
             return newIngredient;
         } catch (Exception e) {
             throw e;
         }
     }
 
-    @DeleteMapping("/ingredients/{name}")
-    void deleteIngredient(@PathVariable String name) {
-        ingredientsDataHandler.deleteIngredient(name);
+    @DeleteMapping("/ingredients/{id}")
+    void deleteIngredient(@PathVariable String id) {
+        ingredientsDataHandler.deleteIngredient(id);
     }
 }

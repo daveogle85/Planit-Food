@@ -4,9 +4,9 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.planitfood.exceptions.EntityNotFoundException;
 import com.planitfood.models.Ingredient;
 import org.springframework.stereotype.Service;
 
@@ -22,33 +22,56 @@ public class IngredientsDataHandler {
             .build();
     private final DynamoDBMapper dynamoDBMapper = new DynamoDBMapper(this.client);
 
-    public Ingredient getIngredientByName(String name) throws Exception {
-        List<Ingredient> itemList;
-
-        final Ingredient gsiKeyObj = new Ingredient();
-        gsiKeyObj.setSearchName(name.toLowerCase());
-        final DynamoDBQueryExpression<Ingredient> queryExpression =
-                new DynamoDBQueryExpression<>();
-        queryExpression.setHashKeyValues(gsiKeyObj);
-        queryExpression.setIndexName("SearchName-index");
-        queryExpression.setConsistentRead(false);   // cannot use consistent read on GSI
-        itemList = this.dynamoDBMapper.query(Ingredient.class, queryExpression);
-        return itemList.stream()
-                .findFirst()
-                .orElseThrow(() -> new Exception("No ingredient of that name returned"));
+    public List<Ingredient> getAllIngredients() {
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+        List<Ingredient> results = dynamoDBMapper.scan(Ingredient.class, scanExpression);
+        return results;
     }
 
-    public void saveIngredient(Ingredient ingredient) {
+    public Ingredient getIngredientById(String id) throws Exception {
+        Ingredient found = dynamoDBMapper.load(Ingredient.class, id);
+
+        if (found != null) {
+            return found;
+        } else {
+            throw new EntityNotFoundException("ingredient", id);
+        }
+
+//        List<Ingredient> itemList;
+//
+//        final Ingredient gsiKeyObj = new Ingredient();
+//        gsiKeyObj.setSearchName(name.toLowerCase());
+//        final DynamoDBQueryExpression<Ingredient> queryExpression =
+//                new DynamoDBQueryExpression<>();
+//        queryExpression.setHashKeyValues(gsiKeyObj);
+//        queryExpression.setIndexName("SearchName-index");
+//        queryExpression.setConsistentRead(false);   // cannot use consistent read on GSI
+//        itemList = this.dynamoDBMapper.query(Ingredient.class, queryExpression);
+//        return itemList.stream()
+//                .findFirst()
+//                .orElseThrow(() -> new Exception("No ingredient of that name returned"));
+    }
+
+    public void addIngredient(Ingredient ingredient) {
         dynamoDBMapper.save(ingredient);
     }
 
-    // Must be exact name
-    public void deleteIngredient(String name) {
-        final Ingredient toDelete = new Ingredient(name);
+    public void updateIngredient(Ingredient ingredient) throws Exception {
+        Ingredient found = dynamoDBMapper.load(Ingredient.class, ingredient.getId());
+
+        if (found != null) {
+            dynamoDBMapper.save(ingredient);
+        } else {
+            throw new EntityNotFoundException("ingredient", ingredient.getId());
+        }
+    }
+
+    public void deleteIngredient(String id) {
+        final Ingredient toDelete = new Ingredient(id);
         this.dynamoDBMapper.delete(toDelete);
     }
 
-    public List<Ingredient> findIngredientsBeginningWith(String searchString) throws Exception {
+    public List<Ingredient> findIngredientsBeginningWith(String searchString) {
         Map<String, AttributeValue> eav = new HashMap();
         eav.put(":val1", new AttributeValue().withS(searchString));
 
