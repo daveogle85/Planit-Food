@@ -7,7 +7,10 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.planitfood.exceptions.EntityNotFoundException;
+import com.planitfood.exceptions.UnableToDeleteException;
+import com.planitfood.models.Dish;
 import com.planitfood.models.Ingredient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -17,6 +20,8 @@ import java.util.Map;
 @Service
 public class IngredientsDataHandler {
 
+    @Autowired
+    private DishDataHandler dishDataHandler;
     private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
             .withRegion(Regions.EU_WEST_2)
             .build();
@@ -66,10 +71,14 @@ public class IngredientsDataHandler {
         }
     }
 
-    public void deleteIngredient(String id) {
+    public void deleteIngredient(String id) throws UnableToDeleteException {
         final Ingredient toDelete = new Ingredient(id);
-        // TODO Check it doesn't belong to any dish.
-        this.dynamoDBMapper.delete(toDelete);
+        List<Dish> found = dishDataHandler.getDishesByQuery(null, id, null);
+        if(found != null & found.size() > 0) {
+            throw new UnableToDeleteException(id, "ingredient is used in dish " + found.get(0).getId());
+        } else {
+            this.dynamoDBMapper.delete(toDelete);
+        }
     }
 
     public List<Ingredient> findIngredientsBeginningWith(String searchString) {

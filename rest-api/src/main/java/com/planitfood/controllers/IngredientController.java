@@ -2,6 +2,7 @@ package com.planitfood.controllers;
 
 import com.planitfood.data.IngredientsDataHandler;
 import com.planitfood.exceptions.EntityNotFoundException;
+import com.planitfood.exceptions.UnableToDeleteException;
 import com.planitfood.models.Ingredient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -60,7 +61,12 @@ public class IngredientController {
     }
 
     @DeleteMapping("/ingredients/{id}")
-    void deleteIngredient(@PathVariable String id) {
-        ingredientsDataHandler.deleteIngredient(id);
+    String deleteIngredient(@PathVariable String id) throws UnableToDeleteException {
+        try {
+            ingredientsDataHandler.deleteIngredient(id);
+            return id + " deleted";
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

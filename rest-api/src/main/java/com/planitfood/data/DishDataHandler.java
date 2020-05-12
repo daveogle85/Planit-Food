@@ -9,8 +9,11 @@ import com.amazonaws.services.dynamodbv2.datamodeling.TransactionLoadRequest;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.planitfood.enums.DishType;
 import com.planitfood.exceptions.EntityNotFoundException;
+import com.planitfood.exceptions.UnableToDeleteException;
 import com.planitfood.models.Dish;
 import com.planitfood.models.Ingredient;
+import com.planitfood.models.Meal;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -20,6 +23,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class DishDataHandler {
+    @Autowired
+    private MealDataHandler mealDataHandler;
     private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
             .withRegion(Regions.EU_WEST_2)
             .build();
@@ -56,16 +61,20 @@ public class DishDataHandler {
         }
     }
 
-    public void deleteDish(String id) {
+    public void deleteDish(String id) throws UnableToDeleteException {
         final Dish toDelete = new Dish(id);
-        // TODO check it doesn't belong to any meal
-        this.dynamoDBMapper.delete(toDelete);
+        List<Meal> found = mealDataHandler.getMealsByQuery(null, id);
+        if (found != null & found.size() > 0) {
+            throw new UnableToDeleteException(id, "dish is used in meal " + found.get(0).getId());
+        } else {
+            this.dynamoDBMapper.delete(toDelete);
+        }
     }
 
     public List<Dish> getDishesByQuery(String searchName, String ingredientId, DishType dishType) {
         Map<String, AttributeValue> eav = new HashMap();
         final String searchNameQuery = "contains(SearchName, :val1)";
-        final String ingredientNameQuery = "contains(Ingredients, :val2)";
+        final String ingredientIdQuery = "contains(Ingredients, :val2)";
         final String dishTypeQuery = "DishType = :val3";
         String queryString = "";
 
@@ -77,9 +86,9 @@ public class DishDataHandler {
         if (ingredientId != null) {
             eav.put(":val2", new AttributeValue().withS(ingredientId));
             if (queryString.isEmpty()) {
-                queryString += ingredientNameQuery;
+                queryString += ingredientIdQuery;
             } else {
-                queryString += " and " + ingredientNameQuery;
+                queryString += " and " + ingredientIdQuery;
             }
         }
 

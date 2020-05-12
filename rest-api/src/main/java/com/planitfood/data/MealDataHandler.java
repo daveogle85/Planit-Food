@@ -63,14 +63,24 @@ public class MealDataHandler {
         this.dynamoDBMapper.delete(toDelete);
     }
 
-    public List<Meal> getMealsByQuery(String searchName) {
+    public List<Meal> getMealsByQuery(String searchName, String dishId) {
         Map<String, AttributeValue> eav = new HashMap();
         final String searchNameQuery = "contains(SearchName, :val1)";
+        final String dishIdQuery = "contains(Dishes, :val2)";
         String queryString = "";
 
         if (searchName != null) {
             eav.put(":val1", new AttributeValue().withS(searchName.toLowerCase()));
             queryString += searchNameQuery;
+        }
+
+        if (dishId != null) {
+            eav.put(":val2", new AttributeValue().withS(dishId));
+            if (queryString.isEmpty()) {
+                queryString += dishIdQuery;
+            } else {
+                queryString += " and " + dishIdQuery;
+            }
         }
 
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
