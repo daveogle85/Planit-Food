@@ -36,7 +36,7 @@ public class DishDataHandler {
         Dish found = dynamoDBMapper.load(Dish.class, id);
 
         if (found != null) {
-            return found;
+            return addIngredientsToDish(found);
         } else {
             throw new EntityNotFoundException("dish", id);
         }
@@ -58,6 +58,7 @@ public class DishDataHandler {
 
     public void deleteDish(String id) {
         final Dish toDelete = new Dish(id);
+        // TODO check it doesn't belong to any meal
         this.dynamoDBMapper.delete(toDelete);
     }
 
@@ -104,7 +105,7 @@ public class DishDataHandler {
         return matchedDishes;
     }
 
-    private Dish addIngredientsToDish(Dish dishById) {
+    public Dish addIngredientsToDish(Dish dishById) {
         TransactionLoadRequest transactionLoadRequest = new TransactionLoadRequest();
         List<Ingredient> dishIngredients = dishById.getIngredients();
 

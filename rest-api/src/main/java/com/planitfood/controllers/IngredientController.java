@@ -13,12 +13,8 @@ import java.util.List;
 @ComponentScan({"com.planitfood.data"})
 public class IngredientController {
 
-    private IngredientsDataHandler ingredientsDataHandler;
-
     @Autowired
-    public IngredientController(IngredientsDataHandler ingredientsDataHandler) {
-        this.ingredientsDataHandler = ingredientsDataHandler;
-    }
+    private IngredientsDataHandler ingredientsDataHandler;
 
     @GetMapping("/ingredients")
     List<Ingredient> search(

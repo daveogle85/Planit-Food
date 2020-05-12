@@ -13,12 +13,8 @@ import java.util.List;
 @ComponentScan({"com.planitfood.data"})
 public class DishController {
 
-    private DishDataHandler dishDataHandler;
-
     @Autowired
-    public DishController(DishDataHandler dishDataHandler) {
-        this.dishDataHandler = dishDataHandler;
-    }
+    private DishDataHandler dishDataHandler;
 
     @GetMapping("/dishes/{id}")
     Dish one(@PathVariable String id) throws Exception {

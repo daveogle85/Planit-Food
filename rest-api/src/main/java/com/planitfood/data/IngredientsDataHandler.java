@@ -68,6 +68,7 @@ public class IngredientsDataHandler {
 
     public void deleteIngredient(String id) {
         final Ingredient toDelete = new Ingredient(id);
+        // TODO Check it doesn't belong to any dish.
         this.dynamoDBMapper.delete(toDelete);
     }
 
