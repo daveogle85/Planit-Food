@@ -36,7 +36,7 @@ public class DishController {
             if (searchName == null && ingredientId == null && dishType == null) {
                 return dishDataHandler.getAllDishes();
             }
-            return dishDataHandler.getDishesByQuery(searchName, ingredientId, dishType);
+            return dishDataHandler.getDishesByQuery(searchName, ingredientId, dishType, true);
         } catch (Exception e) {
             throw e;
         }

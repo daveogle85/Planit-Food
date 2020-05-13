@@ -47,13 +47,15 @@ public class DishesTests {
         ArgumentCaptor<String> searchName = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> ingredientId = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<DishType> dishType = ArgumentCaptor.forClass(DishType.class);
+        ArgumentCaptor<Boolean> addIngredients = ArgumentCaptor.forClass(Boolean.class);
 
         // dishByName
         mockMvc.perform(get(url + "?searchName=bob")).andExpect(status().isOk());
         verify(dishDataHandler, times(1)).getDishesByQuery(
                 searchName.capture(),
                 ingredientId.capture(),
-                dishType.capture()
+                dishType.capture(),
+                addIngredients.capture()
         );
         Assertions.assertEquals("bob", searchName.getValue());
         Assertions.assertNull(ingredientId.getValue());
@@ -66,13 +68,15 @@ public class DishesTests {
         ArgumentCaptor<String> searchName = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> ingredientId = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<DishType> dishType = ArgumentCaptor.forClass(DishType.class);
+        ArgumentCaptor<Boolean> addIngredients = ArgumentCaptor.forClass(Boolean.class);
 
         // dishByName
         mockMvc.perform(get(url + "?ingredientId=123")).andExpect(status().isOk());
         verify(dishDataHandler, times(1)).getDishesByQuery(
                 searchName.capture(),
                 ingredientId.capture(),
-                dishType.capture()
+                dishType.capture(),
+                addIngredients.capture()
         );
         Assertions.assertNull(searchName.getValue());
         Assertions.assertEquals("123", ingredientId.getValue());
@@ -85,13 +89,15 @@ public class DishesTests {
         ArgumentCaptor<String> searchName = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> ingredientId = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<DishType> dishType = ArgumentCaptor.forClass(DishType.class);
+        ArgumentCaptor<Boolean> addIngredients = ArgumentCaptor.forClass(Boolean.class);
 
         // dishByName
         mockMvc.perform(get(url + "?dishType=SIDE")).andExpect(status().isOk());
         verify(dishDataHandler, times(1)).getDishesByQuery(
                 searchName.capture(),
                 ingredientId.capture(),
-                dishType.capture()
+                dishType.capture(),
+                addIngredients.capture()
         );
         Assertions.assertNull(searchName.getValue());
         Assertions.assertNull(ingredientId.getValue());
@@ -104,13 +110,15 @@ public class DishesTests {
         ArgumentCaptor<String> searchName = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> ingredientId = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<DishType> dishType = ArgumentCaptor.forClass(DishType.class);
+        ArgumentCaptor<Boolean> addIngredients = ArgumentCaptor.forClass(Boolean.class);
 
         // dishByName
         mockMvc.perform(get(url + "?dishType=MAIN&ingredientId=123")).andExpect(status().isOk());
         verify(dishDataHandler, times(1)).getDishesByQuery(
                 searchName.capture(),
                 ingredientId.capture(),
-                dishType.capture()
+                dishType.capture(),
+                addIngredients.capture()
         );
         Assertions.assertNull(searchName.getValue());
         Assertions.assertEquals("123", ingredientId.getValue());

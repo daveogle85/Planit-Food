@@ -3,11 +3,10 @@ package com.planitfood.data;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.TransactionLoadRequest;
+import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.planitfood.exceptions.EntityNotFoundException;
+import com.planitfood.models.Day;
 import com.planitfood.models.Dish;
 import com.planitfood.models.Meal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +19,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class MealDataHandler {
+
+    @Autowired
+    private DayDataHandler dayDataHandler;
     @Autowired
     private DishDataHandler dishDataHandler;
+
     private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
             .withRegion(Regions.EU_WEST_2)
             .build();
@@ -31,14 +34,14 @@ public class MealDataHandler {
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
 
         List<Meal> results = dynamoDBMapper.scan(Meal.class, scanExpression);
-        return results.stream().map(r -> addDishToMeal(r)).collect(Collectors.toList());
+        return results.stream().map(r -> addDishesToMeal(r)).collect(Collectors.toList());
     }
 
     public Meal getMealById(String id) throws Exception {
         Meal found = dynamoDBMapper.load(Meal.class, id);
 
         if (found != null) {
-            return addDishToMeal(found);
+            return addDishesToMeal(found);
         } else {
             throw new EntityNotFoundException("meal", id);
         }
@@ -60,10 +63,19 @@ public class MealDataHandler {
 
     public void deleteMeal(String id) {
         final Meal toDelete = new Meal(id);
-        this.dynamoDBMapper.delete(toDelete);
+        List<Day> found = dayDataHandler.getDaysByQuery(id, false);
+        TransactionWriteRequest transactionWriteRequest = new TransactionWriteRequest();
+        transactionWriteRequest.addDelete(toDelete);
+        if (found != null & found.size() > 0) {
+            found.forEach(day -> {
+                day.setMeal(null);
+                transactionWriteRequest.addUpdate(day);
+            });
+        }
+        Transactions.executeTransactionWrite(transactionWriteRequest, dynamoDBMapper);
     }
 
-    public List<Meal> getMealsByQuery(String searchName, String dishId) {
+    public List<Meal> getMealsByQuery(String searchName, String dishId, boolean addDishes) {
         Map<String, AttributeValue> eav = new HashMap();
         final String searchNameQuery = "contains(SearchName, :val1)";
         final String dishIdQuery = "contains(Dishes, :val2)";
@@ -88,7 +100,11 @@ public class MealDataHandler {
                 .withExpressionAttributeValues(eav);
 
         List<Meal> results = scanMeals(scanExpression);
-        return results.stream().map(r -> addDishToMeal(r)).collect(Collectors.toList());
+
+        if(!addDishes) {
+            return results;
+        }
+        return results.stream().map(r -> addDishesToMeal(r)).collect(Collectors.toList());
     }
 
     private List<Meal> scanMeals(DynamoDBScanExpression scanExpression) {
@@ -96,7 +112,7 @@ public class MealDataHandler {
         return matchedDishes;
     }
 
-    private Meal addDishToMeal(Meal meal) {
+    private Meal addDishesToMeal(Meal meal) {
         TransactionLoadRequest transactionLoadRequest = new TransactionLoadRequest();
         List<Dish> mealDishes = meal.getDishes();
 
@@ -107,6 +123,23 @@ public class MealDataHandler {
         mealDishes.forEach(dish -> transactionLoadRequest.addLoad(dish));
         List<Dish> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDBMapper);
         results = results.stream().map(dish -> dishDataHandler.addIngredientsToDish(dish)).collect(Collectors.toList());
+        meal.setDishes(results);
+        return meal;
+    }
+
+    public Meal addDishIdAndNameToMeal(Meal meal) {
+        TransactionLoadRequest transactionLoadRequest = new TransactionLoadRequest();
+        List<Dish> mealDishes = meal.getDishes();
+
+        if (mealDishes == null) {
+            return meal;
+        }
+
+        mealDishes.forEach(dish -> {
+            DynamoDBTransactionLoadExpression loadExpressionForDish = new DynamoDBTransactionLoadExpression();
+            transactionLoadRequest.addLoad(dish, loadExpressionForDish);
+        });
+        List<Dish> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDBMapper);
         meal.setDishes(results);
         return meal;
     }

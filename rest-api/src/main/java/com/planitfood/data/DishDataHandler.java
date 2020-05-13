@@ -63,7 +63,7 @@ public class DishDataHandler {
 
     public void deleteDish(String id) throws UnableToDeleteException {
         final Dish toDelete = new Dish(id);
-        List<Meal> found = mealDataHandler.getMealsByQuery(null, id);
+        List<Meal> found = mealDataHandler.getMealsByQuery(null, id, false);
         if (found != null & found.size() > 0) {
             throw new UnableToDeleteException(id, "dish is used in meal " + found.get(0).getId());
         } else {
@@ -71,7 +71,7 @@ public class DishDataHandler {
         }
     }
 
-    public List<Dish> getDishesByQuery(String searchName, String ingredientId, DishType dishType) {
+    public List<Dish> getDishesByQuery(String searchName, String ingredientId, DishType dishType, boolean addIngredients) {
         Map<String, AttributeValue> eav = new HashMap();
         final String searchNameQuery = "contains(SearchName, :val1)";
         final String ingredientIdQuery = "contains(Ingredients, :val2)";
@@ -106,6 +106,11 @@ public class DishDataHandler {
                 .withExpressionAttributeValues(eav);
 
         List<Dish> results = scanDishes(scanExpression);
+
+        if (!addIngredients) {
+            return results;
+        }
+
         return results.stream().map(r -> addIngredientsToDish(r)).collect(Collectors.toList());
     }
 

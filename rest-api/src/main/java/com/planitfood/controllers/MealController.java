@@ -24,7 +24,7 @@ public class MealController {
             if (searchName == null) {
                 return mealDataHandler.getAllMeals();
             }
-            return mealDataHandler.getMealsByQuery(searchName);
+            return mealDataHandler.getMealsByQuery(searchName, null, true);
         } catch (Exception e) {
             throw e;
         }

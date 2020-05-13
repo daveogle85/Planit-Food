@@ -44,10 +44,14 @@ public class MealsTests {
     public void shouldSearchMealsByName() throws Exception {
         String url = "/meals";
         ArgumentCaptor<String> searchName = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> dishId = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Boolean> addDishes = ArgumentCaptor.forClass(Boolean.class);
 
         mockMvc.perform(get(url + "?searchName=bob")).andExpect(status().isOk());
         verify(mealDataHandler, times(1)).getMealsByQuery(
-                searchName.capture()
+                searchName.capture(),
+                dishId.capture(),
+                addDishes.capture()
         );
         Assertions.assertEquals("bob", searchName.getValue());
     }

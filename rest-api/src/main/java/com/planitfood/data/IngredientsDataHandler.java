@@ -41,20 +41,6 @@ public class IngredientsDataHandler {
         } else {
             throw new EntityNotFoundException("ingredient", id);
         }
-
-//        List<Ingredient> itemList;
-//
-//        final Ingredient gsiKeyObj = new Ingredient();
-//        gsiKeyObj.setSearchName(name.toLowerCase());
-//        final DynamoDBQueryExpression<Ingredient> queryExpression =
-//                new DynamoDBQueryExpression<>();
-//        queryExpression.setHashKeyValues(gsiKeyObj);
-//        queryExpression.setIndexName("SearchName-index");
-//        queryExpression.setConsistentRead(false);   // cannot use consistent read on GSI
-//        itemList = this.dynamoDBMapper.query(Ingredient.class, queryExpression);
-//        return itemList.stream()
-//                .findFirst()
-//                .orElseThrow(() -> new Exception("No ingredient of that name returned"));
     }
 
     public void addIngredient(Ingredient ingredient) {
@@ -73,7 +59,7 @@ public class IngredientsDataHandler {
 
     public void deleteIngredient(String id) throws UnableToDeleteException {
         final Ingredient toDelete = new Ingredient(id);
-        List<Dish> found = dishDataHandler.getDishesByQuery(null, id, null);
+        List<Dish> found = dishDataHandler.getDishesByQuery(null, id, null, false);
         if(found != null & found.size() > 0) {
             throw new UnableToDeleteException(id, "ingredient is used in dish " + found.get(0).getId());
         } else {
