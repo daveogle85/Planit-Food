@@ -1,21 +1,24 @@
 package com.planitfood.controllers;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.planitfood.data.IngredientsDataHandler;
+import com.planitfood.models.Ingredient;
 import com.planitfood.restApi.PlanitFoodApplication;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 
-import java.io.File;
-import java.io.FileReader;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ContextConfiguration(classes = PlanitFoodApplication.class)
@@ -25,37 +28,81 @@ public class IngredientsTests {
     @Autowired
     private MockMvc mockMvc;
 
+    @MockBean
+    IngredientsDataHandler ingredientsDataHandler;
+
     @Test
-    public void shouldReturnAll() throws Exception {
-        ResultActions resultActions = this.mockMvc.perform(get("/ingredients"))
-                .andDo(print())
+    public void shouldReturnAllIngredients() throws Exception {
+        String url = "/ingredients";
+        mockMvc.perform(get(url))
                 .andExpect(status().isOk());
 
-        Gson gson = new Gson();
-        Object object = gson.
-                fromJson(new FileReader(new File("src\\test\\resources\\mockResponses\\ingredients.json")
-                        .getAbsolutePath()), Object.class);
-        String expectedResult = gson.toJson(object);
-
-        MvcResult result = resultActions.andReturn();
-        String contentAsString = result.getResponse().getContentAsString();
-        Assertions.assertTrue(expectedResult.equals(contentAsString));
+        verify(ingredientsDataHandler, times(1)).getAllIngredients();
     }
 
     @Test
-    public void shouldReturnNamedIngredient() throws Exception {
-        ResultActions resultActions = this.mockMvc.perform(get("/ingredients/carrot"))
-                .andDo(print())
+    public void shouldSearchForIngredient() throws Exception {
+        String url = "/ingredients?searchString=mel";
+        mockMvc.perform(get(url))
                 .andExpect(status().isOk());
 
-        Gson gson = new Gson();
-        Object object = gson.
-                fromJson(new FileReader(new File("src\\test\\resources\\mockResponses\\ingredient.json")
-                        .getAbsolutePath()), Object.class);
-        String expectedResult = gson.toJson(object);
+        verify(ingredientsDataHandler, times(1))
+                .findIngredientsBeginningWith("mel");
+    }
 
-        MvcResult result = resultActions.andReturn();
-        String contentAsString = result.getResponse().getContentAsString();
-        Assertions.assertTrue(expectedResult.equals(contentAsString));
+    @Test
+    public void shouldReturnIngredientById() throws Exception {
+        String url = "/ingredients/123";
+        mockMvc.perform(get(url))
+                .andExpect(status().isOk());
+
+        verify(ingredientsDataHandler, times(1)).getIngredientById("123");
+    }
+
+    @Test
+    public void shouldAddANewIngredient() throws Exception {
+        Ingredient test = new Ingredient();
+        test.setName("Melon");
+        String url = "/ingredients";
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+        String requestJson = ow.writeValueAsString(test);
+
+        mockMvc.perform(post(url).contentType(APPLICATION_JSON)
+                .content(requestJson))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<Ingredient> argumentCaptor = ArgumentCaptor.forClass(Ingredient.class);
+        verify(ingredientsDataHandler, times(1)).addIngredient(argumentCaptor.capture());
+        Assertions.assertEquals("Melon", argumentCaptor.getValue().getName());
+        Assertions.assertEquals("melon", argumentCaptor.getValue().getSearchName());
+    }
+
+    @Test
+    public void shouldUpdateIngredient() throws Exception {
+        Ingredient update = new Ingredient("123");
+        update.setName("Melon");
+        String url = "/ingredients";
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+        String requestJson = ow.writeValueAsString(update);
+
+        mockMvc.perform(put(url).contentType(APPLICATION_JSON)
+                .content(requestJson))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<Ingredient> argumentCaptor = ArgumentCaptor.forClass(Ingredient.class);
+        verify(ingredientsDataHandler, times(1)).updateIngredient(argumentCaptor.capture());
+        Assertions.assertEquals("Melon", argumentCaptor.getValue().getName());
+        Assertions.assertEquals("123", argumentCaptor.getValue().getId());
+    }
+
+    @Test
+    public void shouldDeleteIngredient() throws Exception {
+        mockMvc.perform(delete("/ingredients/123"))
+                .andExpect(status().isOk());
+        verify(ingredientsDataHandler, times(1)).deleteIngredient("123");
     }
 }
