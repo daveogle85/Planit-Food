@@ -60,6 +60,7 @@ public class DishesTests {
         Assertions.assertEquals("bob", searchName.getValue());
         Assertions.assertNull(ingredientId.getValue());
         Assertions.assertNull(dishType.getValue());
+        Assertions.assertTrue(addIngredients.getValue());
     }
 
     @Test
@@ -81,6 +82,7 @@ public class DishesTests {
         Assertions.assertNull(searchName.getValue());
         Assertions.assertEquals("123", ingredientId.getValue());
         Assertions.assertNull(dishType.getValue());
+        Assertions.assertTrue(addIngredients.getValue());
     }
 
     @Test
@@ -102,6 +104,7 @@ public class DishesTests {
         Assertions.assertNull(searchName.getValue());
         Assertions.assertNull(ingredientId.getValue());
         Assertions.assertEquals(DishType.SIDE, dishType.getValue());
+        Assertions.assertTrue(addIngredients.getValue());
     }
 
     @Test
@@ -123,6 +126,7 @@ public class DishesTests {
         Assertions.assertNull(searchName.getValue());
         Assertions.assertEquals("123", ingredientId.getValue());
         Assertions.assertEquals(DishType.MAIN, dishType.getValue());
+        Assertions.assertTrue(addIngredients.getValue());
     }
 
     @Test

@@ -1,7 +1,7 @@
 package com.planitfood.models;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
-import com.planitfood.typeConverters.LocalDateConverter;
+import com.planitfood.typeConverters.LocalDateTypeConverter;
 import com.planitfood.typeConverters.MealTypeConverter;
 
 import javax.validation.constraints.NotNull;
@@ -42,13 +42,13 @@ public class Day {
     }
 
     @DynamoDBRangeKey(attributeName = "DayDate")
-    @DynamoDBTypeConverted(converter = LocalDateConverter.class)
+    @DynamoDBTypeConverted(converter = LocalDateTypeConverter.class)
     public LocalDate getDate() {
         return date;
     }
 
     @DynamoDBRangeKey(attributeName = "DayDate")
-    @DynamoDBTypeConverted(converter = LocalDateConverter.class)
+    @DynamoDBTypeConverted(converter = LocalDateTypeConverter.class)
     public void setDate(LocalDate date) {
         this.date = date;
         this.id = createId(date);

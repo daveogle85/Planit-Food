@@ -54,6 +54,8 @@ public class MealsTests {
                 addDishes.capture()
         );
         Assertions.assertEquals("bob", searchName.getValue());
+        Assertions.assertNull(dishId.getValue());
+        Assertions.assertTrue(addDishes.getValue());
     }
 
     @Test
