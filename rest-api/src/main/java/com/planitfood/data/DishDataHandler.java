@@ -1,9 +1,5 @@
 package com.planitfood.data;
 
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.TransactionLoadRequest;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
@@ -23,22 +19,22 @@ import java.util.stream.Collectors;
 
 @Service
 public class DishDataHandler {
+
+    @Autowired
+    private DynamoDB dynamoDB;
+
     @Autowired
     private MealDataHandler mealDataHandler;
-    private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
-            .withRegion(Regions.EU_WEST_2)
-            .build();
-    private final DynamoDBMapper dynamoDBMapper = new DynamoDBMapper(this.client);
 
     public List<Dish> getAllDishes() {
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
 
-        List<Dish> results = dynamoDBMapper.scan(Dish.class, scanExpression);
+        List<Dish> results = dynamoDB.getMapper().scan(Dish.class, scanExpression);
         return results.stream().map(r -> addIngredientsToDish(r)).collect(Collectors.toList());
     }
 
     public Dish getDishById(String id) throws Exception {
-        Dish found = dynamoDBMapper.load(Dish.class, id);
+        Dish found = dynamoDB.getMapper().load(Dish.class, id);
 
         if (found != null) {
             return addIngredientsToDish(found);
@@ -48,14 +44,14 @@ public class DishDataHandler {
     }
 
     public void addDish(Dish dish) throws Exception {
-        dynamoDBMapper.save(dish);
+        dynamoDB.getMapper().save(dish);
     }
 
     public void updateDish(Dish dish) throws Exception {
-        Dish found = dynamoDBMapper.load(Dish.class, dish.getId());
+        Dish found = dynamoDB.getMapper().load(Dish.class, dish.getId());
 
         if (found != null) {
-            dynamoDBMapper.save(dish);
+            dynamoDB.getMapper().save(dish);
         } else {
             throw new EntityNotFoundException("dish", dish.getId());
         }
@@ -67,7 +63,7 @@ public class DishDataHandler {
         if (found != null & found.size() > 0) {
             throw new UnableToDeleteException(id, "dish is used in meal " + found.get(0).getId());
         } else {
-            this.dynamoDBMapper.delete(toDelete);
+            this.dynamoDB.getMapper().delete(toDelete);
         }
     }
 
@@ -115,7 +111,7 @@ public class DishDataHandler {
     }
 
     private List<Dish> scanDishes(DynamoDBScanExpression scanExpression) {
-        List<Dish> matchedDishes = dynamoDBMapper.scan(Dish.class, scanExpression);
+        List<Dish> matchedDishes = dynamoDB.getMapper().scan(Dish.class, scanExpression);
         return matchedDishes;
     }
 
@@ -128,7 +124,7 @@ public class DishDataHandler {
         }
 
         dishIngredients.forEach(ingredient -> transactionLoadRequest.addLoad(ingredient));
-        List<Ingredient> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDBMapper);
+        List<Ingredient> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDB.getMapper());
         dishById.setIngredients(results);
         return dishById;
     }

@@ -1,9 +1,9 @@
 package com.planitfood.data;
 
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.*;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTransactionLoadExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.TransactionLoadRequest;
+import com.amazonaws.services.dynamodbv2.datamodeling.TransactionWriteRequest;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.planitfood.exceptions.EntityNotFoundException;
 import com.planitfood.models.Day;
@@ -22,23 +22,23 @@ public class MealDataHandler {
 
     @Autowired
     private DayDataHandler dayDataHandler;
+
     @Autowired
     private DishDataHandler dishDataHandler;
 
-    private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
-            .withRegion(Regions.EU_WEST_2)
-            .build();
-    private final DynamoDBMapper dynamoDBMapper = new DynamoDBMapper(this.client);
+    @Autowired
+    DynamoDB dynamoDB;
+
 
     public List<Meal> getAllMeals() {
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
 
-        List<Meal> results = dynamoDBMapper.scan(Meal.class, scanExpression);
+        List<Meal> results = dynamoDB.getMapper().scan(Meal.class, scanExpression);
         return results.stream().map(r -> addDishesToMeal(r)).collect(Collectors.toList());
     }
 
     public Meal getMealById(String id) throws Exception {
-        Meal found = dynamoDBMapper.load(Meal.class, id);
+        Meal found = dynamoDB.getMapper().load(Meal.class, id);
 
         if (found != null) {
             return addDishesToMeal(found);
@@ -48,14 +48,14 @@ public class MealDataHandler {
     }
 
     public void addMeal(Meal meal) throws Exception {
-        dynamoDBMapper.save(meal);
+        dynamoDB.getMapper().save(meal);
     }
 
     public void updateMeal(Meal meal) throws Exception {
-        Meal found = dynamoDBMapper.load(Meal.class, meal.getId());
+        Meal found = dynamoDB.getMapper().load(Meal.class, meal.getId());
 
         if (found != null) {
-            dynamoDBMapper.save(meal);
+            dynamoDB.getMapper().save(meal);
         } else {
             throw new EntityNotFoundException("meal", meal.getId());
         }
@@ -72,7 +72,7 @@ public class MealDataHandler {
                 transactionWriteRequest.addUpdate(day);
             });
         }
-        Transactions.executeTransactionWrite(transactionWriteRequest, dynamoDBMapper);
+        Transactions.executeTransactionWrite(transactionWriteRequest, dynamoDB.getMapper());
     }
 
     public List<Meal> getMealsByQuery(String searchName, String dishId, boolean addDishes) {
@@ -108,7 +108,7 @@ public class MealDataHandler {
     }
 
     private List<Meal> scanMeals(DynamoDBScanExpression scanExpression) {
-        List<Meal> matchedDishes = dynamoDBMapper.scan(Meal.class, scanExpression);
+        List<Meal> matchedDishes = dynamoDB.getMapper().scan(Meal.class, scanExpression);
         return matchedDishes;
     }
 
@@ -121,7 +121,7 @@ public class MealDataHandler {
         }
 
         mealDishes.forEach(dish -> transactionLoadRequest.addLoad(dish));
-        List<Dish> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDBMapper);
+        List<Dish> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDB.getMapper());
         results = results.stream().map(dish -> dishDataHandler.addIngredientsToDish(dish)).collect(Collectors.toList());
         meal.setDishes(results);
         return meal;
@@ -139,7 +139,7 @@ public class MealDataHandler {
             DynamoDBTransactionLoadExpression loadExpressionForDish = new DynamoDBTransactionLoadExpression();
             transactionLoadRequest.addLoad(dish, loadExpressionForDish);
         });
-        List<Dish> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDBMapper);
+        List<Dish> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDB.getMapper());
         meal.setDishes(results);
         return meal;
     }

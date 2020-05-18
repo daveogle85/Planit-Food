@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.planitfood.controllers")
+@ComponentScan(basePackages = "com.planitfood.controllers, com.planitfood.data")
 public class PlanitFoodApplication {
 
 	public static void main(String[] args) {

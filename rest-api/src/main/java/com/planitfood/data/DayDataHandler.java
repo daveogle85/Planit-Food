@@ -1,9 +1,5 @@
 package com.planitfood.data;
 
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
@@ -25,12 +21,12 @@ import static java.time.temporal.ChronoUnit.MONTHS;
 
 @Service
 public class DayDataHandler {
+
     @Autowired
     private MealDataHandler mealDataHandler;
-    private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
-            .withRegion(Regions.EU_WEST_2)
-            .build();
-    private final DynamoDBMapper dynamoDBMapper = new DynamoDBMapper(this.client);
+
+    @Autowired
+    private DynamoDB dynamoDB;
 
     public List<Day> getDayByRange(final LocalDate startDate, LocalDate optionalEndDate) throws Exception {
         List<Day> results = new ArrayList<>();
@@ -64,14 +60,14 @@ public class DayDataHandler {
     }
 
     public void addDay(Day day) throws Exception {
-        dynamoDBMapper.save(day);
+        dynamoDB.getMapper().save(day);
     }
 
     public void updateDay(Day day) throws Exception {
-        Day found = dynamoDBMapper.load(Day.class, day.getId(), day.getDate());
+        Day found = dynamoDB.getMapper().load(Day.class, day.getId(), day.getDate());
 
         if (found != null) {
-            dynamoDBMapper.save(day);
+            dynamoDB.getMapper().save(day);
         } else {
             throw new EntityNotFoundException("day", day.getDate().toString());
         }
@@ -79,11 +75,11 @@ public class DayDataHandler {
 
     public void deleteDay(LocalDate date) {
         final Day toDelete = new Day(date);
-        this.dynamoDBMapper.delete(toDelete);
+        this.dynamoDB.getMapper().delete(toDelete);
     }
 
     private List<Day> scanDays(DynamoDBScanExpression scanExpression) {
-        List<Day> matchedDishes = dynamoDBMapper.scan(Day.class, scanExpression);
+        List<Day> matchedDishes = dynamoDB.getMapper().scan(Day.class, scanExpression);
         return matchedDishes;
     }
 
@@ -100,7 +96,7 @@ public class DayDataHandler {
                 .withKeyConditionExpression(rangeQuery1)
                 .withExpressionAttributeValues(eav);
 
-        List<Day> results = dynamoDBMapper.query(Day.class, queryExpression);
+        List<Day> results = dynamoDB.getMapper().query(Day.class, queryExpression);
         return results.stream().map(r -> addMealToDay(r)).collect(Collectors.toList());
 
     }
@@ -112,7 +108,7 @@ public class DayDataHandler {
             return day;
         }
 
-        dayMeal = dynamoDBMapper.load(Meal.class, dayMeal.getId());
+        dayMeal = dynamoDB.getMapper().load(Meal.class, dayMeal.getId());
         dayMeal = mealDataHandler.addDishIdAndNameToMeal(dayMeal);
         day.setMeal(dayMeal);
         return day;
@@ -137,22 +133,7 @@ public class DayDataHandler {
     }
 
     private List<Meal> scanMeals(DynamoDBScanExpression scanExpression) {
-        List<Meal> matchedDishes = dynamoDBMapper.scan(Meal.class, scanExpression);
+        List<Meal> matchedDishes = dynamoDB.getMapper().scan(Meal.class, scanExpression);
         return matchedDishes;
     }
-
-//    private Meal addDishToMeal(Meal meal) {
-//        TransactionLoadRequest transactionLoadRequest = new TransactionLoadRequest();
-//        List<Dish> mealDishes = meal.getDishes();
-//
-//        if (mealDishes == null) {
-//            return meal;
-//        }
-//
-//        mealDishes.forEach(dish -> transactionLoadRequest.addLoad(dish));
-//        List<Dish> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDBMapper);
-//        results = results.stream().map(dish -> dishDataHandler.addIngredientsToDish(dish)).collect(Collectors.toList());
-//        meal.setDishes(results);
-//        return meal;
-//    }
 }
