@@ -5,12 +5,14 @@ import com.planitfood.models.Day;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @RestController
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @ComponentScan({"com.planitfood.data"})
 public class DayController {
 

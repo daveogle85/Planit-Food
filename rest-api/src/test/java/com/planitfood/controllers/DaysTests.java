@@ -4,13 +4,17 @@ import com.planitfood.data.DayDataHandler;
 import com.planitfood.models.Day;
 import com.planitfood.restApi.PlanitFoodApplication;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 
@@ -30,13 +34,24 @@ public class DaysTests {
     @MockBean
     DayDataHandler dayDataHandler;
 
+    @Autowired
+    private WebApplicationContext wac;
+
+    @BeforeEach
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac)
+                .build();
+    }
+
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldReturnDayByRange() throws Exception {
         String url = "/days";
         ArgumentCaptor<LocalDate> startDate = ArgumentCaptor.forClass(LocalDate.class);
         ArgumentCaptor<LocalDate> endDate = ArgumentCaptor.forClass(LocalDate.class);
 
-        mockMvc.perform(get(url + "?startDate=1985-10-08&endDate=1986-11-10")).andExpect(status().isOk());
+        mockMvc.perform(get(url + "?startDate=1985-10-08&endDate=1986-11-10")
+        ).andExpect(status().isOk());
         verify(dayDataHandler, times(1)).getDayByRange(
                 startDate.capture(),
                 endDate.capture()
@@ -46,6 +61,7 @@ public class DaysTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldReturnDayByDate() throws Exception {
         String url = "/days";
         ArgumentCaptor<LocalDate> startDate = ArgumentCaptor.forClass(LocalDate.class);
@@ -61,6 +77,7 @@ public class DaysTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldAddANewDay() throws Exception {
         String url = "/days";
 
@@ -87,6 +104,7 @@ public class DaysTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldUpdateDay() throws Exception {
         String url = "/days";
 

@@ -8,13 +8,17 @@ import com.planitfood.enums.DishType;
 import com.planitfood.models.Dish;
 import com.planitfood.restApi.PlanitFoodApplication;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,7 +36,17 @@ public class DishesTests {
     @MockBean
     DishDataHandler dishDataHandler;
 
+    @Autowired
+    private WebApplicationContext wac;
+
+    @BeforeEach
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac)
+                .build();
+    }
+
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldReturnAll() throws Exception {
         String url = "/dishes";
         mockMvc.perform(get(url))
@@ -42,6 +56,7 @@ public class DishesTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldSearchDishesByName() throws Exception {
         String url = "/dishes";
         ArgumentCaptor<String> searchName = ArgumentCaptor.forClass(String.class);
@@ -64,6 +79,7 @@ public class DishesTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldSearchDishesByIngredientId() throws Exception {
         String url = "/dishes";
         ArgumentCaptor<String> searchName = ArgumentCaptor.forClass(String.class);
@@ -86,6 +102,7 @@ public class DishesTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldSearchDishesByDishType() throws Exception {
         String url = "/dishes";
         ArgumentCaptor<String> searchName = ArgumentCaptor.forClass(String.class);
@@ -108,6 +125,7 @@ public class DishesTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldSearchDishesByMultipleQueries() throws Exception {
         String url = "/dishes";
         ArgumentCaptor<String> searchName = ArgumentCaptor.forClass(String.class);
@@ -130,6 +148,7 @@ public class DishesTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldReturnDishById() throws Exception {
         String url = "/dishes/123";
         mockMvc.perform(get(url))
@@ -139,6 +158,7 @@ public class DishesTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldAddANewDish() throws Exception {
         Dish test = new Dish();
         test.setName("Pie");
@@ -159,6 +179,7 @@ public class DishesTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldUpdateDish() throws Exception {
         Dish update = new Dish("123");
         update.setName("Pie");
@@ -179,6 +200,7 @@ public class DishesTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldDeleteDish() throws Exception {
         mockMvc.perform(delete("/dishes/123"))
                 .andExpect(status().isOk());

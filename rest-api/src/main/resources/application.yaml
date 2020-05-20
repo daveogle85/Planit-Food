@@ -1,0 +1,12 @@
+environment:
+  current: "DEV"
+server:
+  port: 5000
+auth0:
+  audience: https://planitfood/api
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-9kowsp7j.auth0.com/

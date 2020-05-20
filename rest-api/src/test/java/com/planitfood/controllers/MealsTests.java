@@ -7,13 +7,17 @@ import com.planitfood.data.MealDataHandler;
 import com.planitfood.models.Meal;
 import com.planitfood.restApi.PlanitFoodApplication;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,7 +35,17 @@ public class MealsTests {
     @MockBean
     MealDataHandler mealDataHandler;
 
+    @Autowired
+    private WebApplicationContext wac;
+
+    @BeforeEach
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac)
+                .build();
+    }
+
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldReturnAll() throws Exception {
         String url = "/meals";
         mockMvc.perform(get(url))
@@ -41,6 +55,7 @@ public class MealsTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldSearchMealsByName() throws Exception {
         String url = "/meals";
         ArgumentCaptor<String> searchName = ArgumentCaptor.forClass(String.class);
@@ -59,6 +74,7 @@ public class MealsTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldReturnMealById() throws Exception {
         String url = "/meals/123";
         mockMvc.perform(get(url))
@@ -68,6 +84,7 @@ public class MealsTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldAddANewMeal() throws Exception {
         Meal test = new Meal();
         test.setName("Pie");
@@ -88,6 +105,7 @@ public class MealsTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldUpdateMeal() throws Exception {
         Meal update = new Meal("123");
         update.setName("Pie");
@@ -108,6 +126,7 @@ public class MealsTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldDeleteMeal() throws Exception {
         mockMvc.perform(delete("/meals/123"))
                 .andExpect(status().isOk());

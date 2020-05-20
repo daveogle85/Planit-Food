@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DynamoDB implements InitializingBean {
 
-    @Value("${environment}")
+    @Value("${environment.current}")
     private String environment;
     private AmazonDynamoDB client;
     private DynamoDBMapper mapper;

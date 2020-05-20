@@ -7,13 +7,17 @@ import com.planitfood.data.IngredientsDataHandler;
 import com.planitfood.models.Ingredient;
 import com.planitfood.restApi.PlanitFoodApplication;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,7 +35,17 @@ public class IngredientsTests {
     @MockBean
     IngredientsDataHandler ingredientsDataHandler;
 
+    @Autowired
+    private WebApplicationContext wac;
+
+    @BeforeEach
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac)
+                .build();
+    }
+
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldReturnAllIngredients() throws Exception {
         String url = "/ingredients";
         mockMvc.perform(get(url))
@@ -41,6 +55,7 @@ public class IngredientsTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldSearchForIngredient() throws Exception {
         String url = "/ingredients?searchString=mel";
         mockMvc.perform(get(url))
@@ -51,6 +66,7 @@ public class IngredientsTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldReturnIngredientById() throws Exception {
         String url = "/ingredients/123";
         mockMvc.perform(get(url))
@@ -60,6 +76,7 @@ public class IngredientsTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldAddANewIngredient() throws Exception {
         Ingredient test = new Ingredient();
         test.setName("Melon");
@@ -80,6 +97,7 @@ public class IngredientsTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldUpdateIngredient() throws Exception {
         Ingredient update = new Ingredient("123");
         update.setName("Melon");
@@ -100,6 +118,7 @@ public class IngredientsTests {
     }
 
     @Test
+    @WithMockUser(username = "testUser")
     public void shouldDeleteIngredient() throws Exception {
         mockMvc.perform(delete("/ingredients/123"))
                 .andExpect(status().isOk());
