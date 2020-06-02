@@ -26,7 +26,7 @@ public class DynamoDB implements InitializingBean {
     private AmazonDynamoDB getDataBase() {
         AmazonDynamoDBClientBuilder client = AmazonDynamoDBClientBuilder.standard();
 
-        if(this.environment == "DEV") {
+        if(this.environment.equals("DEV")) {
             return client.withEndpointConfiguration(
                     new AwsClientBuilder.EndpointConfiguration("http://localhost:8000", "us-east-1")
             ).build();
