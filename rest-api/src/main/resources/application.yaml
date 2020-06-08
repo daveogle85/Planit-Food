@@ -1,11 +1,19 @@
 environment:
   current: "DEV"
 server:
+  servlet:
+    context-path: /api
   port: 5000
+#  ssl:
+#    key-store-type: PKCS12
+#    key-store: classpath:baeldung.p12
+#    key-store-password: ******
+#    key-alias: baeldung
 auth0:
   audience: https://planitfood/api
 spring:
   security:
+    require-ssl: false
     oauth2:
       resourceserver:
         jwt:

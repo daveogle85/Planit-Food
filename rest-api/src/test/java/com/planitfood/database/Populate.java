@@ -15,6 +15,7 @@ import com.planitfood.models.Ingredient;
 import com.planitfood.models.Meal;
 import com.planitfood.restApi.PlanitFoodApplication;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -64,6 +65,7 @@ public class Populate {
     }
 
     @Test
+    @Disabled
     @WithMockUser(username = "testUser")
     public void shouldAddNewIngredients() throws Exception {
         Ingredient test1 = new Ingredient();
@@ -87,6 +89,7 @@ public class Populate {
     }
 
     @Test
+    @Disabled
     @WithMockUser(username = "testUser")
     public void shouldAddNewDishes() throws Exception {
         String url = "/dishes";
@@ -118,6 +121,7 @@ public class Populate {
     }
 
     @Test
+    @Disabled
     @WithMockUser(username = "testUser")
     public void shouldAddNewMeals() throws Exception {
         Random rand = new Random();
@@ -150,6 +154,7 @@ public class Populate {
     }
 
     @Test
+    @Disabled
     @WithMockUser(username = "testUser")
     public void shouldAddNewDays() throws Exception {
         String url = "/days";
