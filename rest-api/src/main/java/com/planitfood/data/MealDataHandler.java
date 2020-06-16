@@ -12,6 +12,7 @@ import com.planitfood.models.Meal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,15 +48,19 @@ public class MealDataHandler {
         }
     }
 
-    public void addMeal(Meal meal) throws Exception {
+    public Meal addMeal(Meal meal) throws Exception {
+        meal = addDishesToDatabase(meal);
         dynamoDB.getMapper().save(meal);
+        return meal;
     }
 
-    public void updateMeal(Meal meal) throws Exception {
+    public Meal updateMeal(Meal meal) throws Exception {
         Meal found = dynamoDB.getMapper().load(Meal.class, meal.getId());
 
         if (found != null) {
+            meal = addDishesToDatabase(meal);
             dynamoDB.getMapper().save(meal);
+            return meal;
         } else {
             throw new EntityNotFoundException("meal", meal.getId());
         }
@@ -73,6 +78,21 @@ public class MealDataHandler {
             });
         }
         Transactions.executeTransactionWrite(transactionWriteRequest, dynamoDB.getMapper());
+    }
+
+    public Meal addDishesToDatabase(Meal meal) throws Exception {
+        List<Dish> dishes = meal.getDishes();
+        List<Dish> updatedDishes = new ArrayList<>();
+        for (Dish dish : dishes) {
+            if (dish.getId() == null || dish.getId().isEmpty()) {
+                updatedDishes.add(dishDataHandler.addDish(dish));
+
+            } else {
+                updatedDishes.add(dish);
+            }
+        }
+        meal.setDishes(updatedDishes);
+        return meal;
     }
 
     public List<Meal> getMealsByQuery(String searchName, String dishId, boolean addDishes) {
@@ -101,7 +121,7 @@ public class MealDataHandler {
 
         List<Meal> results = scanMeals(scanExpression);
 
-        if(!addDishes) {
+        if (!addDishes) {
             return results;
         }
         return results.stream().map(r -> addDishesToMeal(r)).collect(Collectors.toList());

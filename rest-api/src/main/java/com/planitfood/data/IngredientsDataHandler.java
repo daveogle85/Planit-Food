@@ -38,15 +38,17 @@ public class IngredientsDataHandler {
         }
     }
 
-    public void addIngredient(Ingredient ingredient) {
+    public Ingredient addIngredient(Ingredient ingredient) {
         dynamoDB.getMapper().save(ingredient);
+        return ingredient;
     }
 
-    public void updateIngredient(Ingredient ingredient) throws Exception {
+    public Ingredient updateIngredient(Ingredient ingredient) throws Exception {
         Ingredient found = dynamoDB.getMapper().load(Ingredient.class, ingredient.getId());
 
         if (found != null) {
             dynamoDB.getMapper().save(ingredient);
+            return ingredient;
         } else {
             throw new EntityNotFoundException("ingredient", ingredient.getId());
         }

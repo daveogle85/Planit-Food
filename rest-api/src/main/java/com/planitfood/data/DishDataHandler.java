@@ -43,15 +43,17 @@ public class DishDataHandler {
         }
     }
 
-    public void addDish(Dish dish) throws Exception {
+    public Dish addDish(Dish dish) throws Exception {
         dynamoDB.getMapper().save(dish);
+        return dish;
     }
 
-    public void updateDish(Dish dish) throws Exception {
+    public Dish updateDish(Dish dish) throws Exception {
         Dish found = dynamoDB.getMapper().load(Dish.class, dish.getId());
 
         if (found != null) {
             dynamoDB.getMapper().save(dish);
+            return dish;
         } else {
             throw new EntityNotFoundException("dish", dish.getId());
         }

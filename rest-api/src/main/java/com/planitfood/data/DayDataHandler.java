@@ -59,15 +59,17 @@ public class DayDataHandler {
         return results.stream().map(r -> addMealToDay(r)).collect(Collectors.toList());
     }
 
-    public void addDay(Day day) throws Exception {
+    public Day addDay(Day day) throws Exception {
         dynamoDB.getMapper().save(day);
+        return day;
     }
 
-    public void updateDay(Day day) throws Exception {
+    public Day updateDay(Day day) throws Exception {
         Day found = dynamoDB.getMapper().load(Day.class, day.getId(), day.getDate());
 
         if (found != null) {
             dynamoDB.getMapper().save(day);
+            return day;
         } else {
             throw new EntityNotFoundException("day", day.getDate().toString());
         }

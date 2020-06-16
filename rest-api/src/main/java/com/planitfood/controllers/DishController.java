@@ -45,7 +45,7 @@ public class DishController {
     @PostMapping("/dishes")
     Dish newDish(@RequestBody Dish newDish) throws Exception {
         try {
-            dishDataHandler.addDish(newDish);
+            newDish = dishDataHandler.addDish(newDish);
             return newDish;
         } catch (Exception e) {
             throw e;
@@ -55,7 +55,7 @@ public class DishController {
     @PutMapping("/dishes")
     Dish replaceDish(@RequestBody Dish newDish) throws Exception {
         try {
-            dishDataHandler.updateDish(newDish);
+            newDish = dishDataHandler.updateDish(newDish);
             return newDish;
         } catch (Exception e) {
             throw e;

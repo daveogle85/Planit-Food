@@ -43,7 +43,7 @@ public class IngredientController {
     @PostMapping("/ingredients")
     Ingredient newIngredient(@RequestBody Ingredient newIngredient) {
         try {
-            ingredientsDataHandler.addIngredient(newIngredient);
+            newIngredient = ingredientsDataHandler.addIngredient(newIngredient);
             return newIngredient;
         } catch (Exception e) {
             throw e;
@@ -53,7 +53,7 @@ public class IngredientController {
     @PutMapping("/ingredients")
     Ingredient replaceIngredient(@RequestBody Ingredient newIngredient) throws Exception {
         try {
-            ingredientsDataHandler.updateIngredient(newIngredient);
+            newIngredient = ingredientsDataHandler.updateIngredient(newIngredient);
             return newIngredient;
         } catch (Exception e) {
             throw e;

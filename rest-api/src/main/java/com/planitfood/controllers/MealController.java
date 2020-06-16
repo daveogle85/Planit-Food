@@ -42,7 +42,7 @@ public class MealController {
     @PostMapping("/meals")
     Meal newMeal(@RequestBody Meal newMeal) throws Exception {
         try {
-            mealDataHandler.addMeal(newMeal);
+            newMeal = mealDataHandler.addMeal(newMeal);
             return newMeal;
         } catch (Exception e) {
             throw e;
@@ -52,7 +52,7 @@ public class MealController {
     @PutMapping("/meals")
     Meal replaceMeal(@RequestBody Meal newMeal) throws Exception {
         try {
-            mealDataHandler.updateMeal(newMeal);
+            newMeal = mealDataHandler.updateMeal(newMeal);
             return newMeal;
         } catch (Exception e) {
             throw e;

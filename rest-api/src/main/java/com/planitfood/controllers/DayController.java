@@ -34,7 +34,7 @@ public class DayController {
     @PostMapping("/days")
     Day newDay(@RequestBody Day newDay) throws Exception {
         try {
-            dayDataHandler.addDay(newDay);
+            newDay = dayDataHandler.addDay(newDay);
             return newDay;
         } catch (Exception e) {
             throw e;
@@ -44,7 +44,7 @@ public class DayController {
     @PutMapping("/days")
     Day replaceDay(@RequestBody Day newDay) throws Exception {
         try {
-            dayDataHandler.updateDay(newDay);
+            newDay = dayDataHandler.updateDay(newDay);
             return newDay;
         } catch (Exception e) {
             throw e;
