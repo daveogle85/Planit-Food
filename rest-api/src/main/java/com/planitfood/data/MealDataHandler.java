@@ -49,7 +49,7 @@ public class MealDataHandler {
     }
 
     public Meal addMeal(Meal meal) throws Exception {
-        meal = addDishesToDatabase(meal);
+        meal = addMealDishesToDatabase(meal);
         dynamoDB.getMapper().save(meal);
         return meal;
     }
@@ -58,7 +58,7 @@ public class MealDataHandler {
         Meal found = dynamoDB.getMapper().load(Meal.class, meal.getId());
 
         if (found != null) {
-            meal = addDishesToDatabase(meal);
+            meal = addMealDishesToDatabase(meal);
             dynamoDB.getMapper().save(meal);
             return meal;
         } else {
@@ -80,19 +80,27 @@ public class MealDataHandler {
         Transactions.executeTransactionWrite(transactionWriteRequest, dynamoDB.getMapper());
     }
 
-    public Meal addDishesToDatabase(Meal meal) throws Exception {
+    public Meal addMealDishesToDatabase(Meal meal) throws Exception {
         List<Dish> dishes = meal.getDishes();
-        List<Dish> updatedDishes = new ArrayList<>();
-        for (Dish dish : dishes) {
-            if (dish.getId() == null || dish.getId().isEmpty()) {
-                updatedDishes.add(dishDataHandler.addDish(dish));
+        meal.setDishes(dishDataHandler.addDishesToDatabase(dishes));
+        return meal;
+    }
+
+    public List<Meal> addMealsToDatabase(List<Meal> meals, boolean addDishes) throws  Exception {
+        List<Meal> updatedMeals = new ArrayList<>();
+        for (Meal meal : meals) {
+            Meal foundMeal = meal.getId() == null ? null : dynamoDB.getMapper().load(Meal.class, meal.getId());
+            if (foundMeal == null) {
+                if (addDishes) {
+                  foundMeal = addMealDishesToDatabase(meal);
+                }
+                updatedMeals.add(addMeal(foundMeal));
 
             } else {
-                updatedDishes.add(dish);
+                updatedMeals.add(meal);
             }
         }
-        meal.setDishes(updatedDishes);
-        return meal;
+        return updatedMeals;
     }
 
     public List<Meal> getMealsByQuery(String searchName, String dishId, boolean addDishes) {

@@ -66,14 +66,14 @@ public class ListDataHandler {
         return customList;
     }
 
-    public CustomList updateMealsInList(String listId, Meal newMeal) throws Exception {
-        CustomList found = dynamoDB.getMapper().load(CustomList.class, listId);
+    public CustomList updateMealsInList(CustomList updatedList) throws Exception {
+        CustomList found = dynamoDB.getMapper().load(CustomList.class, updatedList.getId());
         if (found != null) {
-            newMeal = mealDataHandler.addDishesToDatabase(newMeal);
-            found.addMeal(newMeal);
+            List<Meal> newMeals = mealDataHandler.addMealsToDatabase(updatedList.getMeals(), true);
+            found.setMeals(newMeals);
             dynamoDB.getMapper().save(found);
         } else {
-            throw new EntityNotFoundException("list", listId);
+            throw new EntityNotFoundException("list", updatedList.getId());
         }
         return found;
     }

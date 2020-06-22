@@ -12,6 +12,7 @@ import com.planitfood.models.Meal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,20 @@ public class DishDataHandler {
         } else {
             throw new EntityNotFoundException("dish", id);
         }
+    }
+
+    public List<Dish> addDishesToDatabase(List<Dish> dishes) throws Exception {
+        List<Dish> updatedDishes = new ArrayList<>();
+        for (Dish dish : dishes) {
+            Dish foundDish = dish.getId() == null ? null : dynamoDB.getMapper().load(Dish.class, dish.getId());
+            if (foundDish == null) {
+                updatedDishes.add(addDish(dish));
+
+            } else {
+                updatedDishes.add(dish);
+            }
+        }
+        return updatedDishes;
     }
 
     public Dish addDish(Dish dish) throws Exception {

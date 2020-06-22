@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.planitfood.data.ListDataHandler;
 import com.planitfood.models.CustomList;
-import com.planitfood.models.Meal;
 import com.planitfood.restApi.PlanitFoodApplication;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -98,9 +97,9 @@ public class ListsTests {
     @Test
     @WithMockUser(username = "testUser")
     public void shouldUpdateList() throws Exception {
-        Meal toAdd = new Meal("123");
-        toAdd.setName("Pie");
-        String url = "/lists/456/meals";
+        CustomList toAdd = new CustomList("123");
+        toAdd.setName("Test");
+        String url = "/lists";
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
@@ -110,11 +109,9 @@ public class ListsTests {
                 .content(requestJson))
                 .andExpect(status().isOk());
 
-        ArgumentCaptor<String> id = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Meal> meal = ArgumentCaptor.forClass(Meal.class);
-        verify(listDataHandler, times(1)).updateMealsInList(id.capture(), meal.capture());
-        Assertions.assertEquals("456", id.getValue());
-        Assertions.assertEquals("123", meal.getValue().getId());
+        ArgumentCaptor<CustomList> list = ArgumentCaptor.forClass(CustomList.class);
+        verify(listDataHandler, times(1)).updateMealsInList(list.capture());
+        Assertions.assertEquals("123", list.getValue().getId());
     }
 
     @Test

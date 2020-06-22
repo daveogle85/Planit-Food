@@ -2,7 +2,6 @@ package com.planitfood.controllers;
 
 import com.planitfood.data.ListDataHandler;
 import com.planitfood.models.CustomList;
-import com.planitfood.models.Meal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.*;
@@ -53,10 +52,10 @@ public class ListController {
         }
     }
 
-    @PutMapping("/lists/{id}/meals")
-    CustomList updateMeals(@PathVariable String id, @RequestBody Meal mealToAdd) throws Exception {
+    @PutMapping("/lists")
+    CustomList updateMeals(@RequestBody CustomList newList) throws Exception {
         try {
-            CustomList updatedList = listDataHandler.updateMealsInList(id, mealToAdd);
+            CustomList updatedList = listDataHandler.updateMealsInList(newList);
             return updatedList;
         } catch (Exception e) {
             throw e;
