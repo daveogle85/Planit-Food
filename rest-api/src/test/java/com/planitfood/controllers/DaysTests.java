@@ -49,15 +49,18 @@ public class DaysTests {
         String url = "/days";
         ArgumentCaptor<LocalDate> startDate = ArgumentCaptor.forClass(LocalDate.class);
         ArgumentCaptor<LocalDate> endDate = ArgumentCaptor.forClass(LocalDate.class);
+        ArgumentCaptor<Boolean> withDishes = ArgumentCaptor.forClass(Boolean.class);
 
-        mockMvc.perform(get(url + "?startDate=1985-10-08&endDate=1986-11-10")
+        mockMvc.perform(get(url + "?startDate=1985-10-08&endDate=1986-11-10&includeDishes=true")
         ).andExpect(status().isOk());
         verify(dayDataHandler, times(1)).getDayByRange(
                 startDate.capture(),
-                endDate.capture()
+                endDate.capture(),
+                withDishes.capture()
         );
         Assertions.assertEquals("1985-10-08", startDate.getValue().toString());
         Assertions.assertEquals("1986-11-10", endDate.getValue().toString());
+        Assertions.assertEquals(true, withDishes.getValue());
     }
 
     @Test
@@ -66,14 +69,37 @@ public class DaysTests {
         String url = "/days";
         ArgumentCaptor<LocalDate> startDate = ArgumentCaptor.forClass(LocalDate.class);
         ArgumentCaptor<LocalDate> endDate = ArgumentCaptor.forClass(LocalDate.class);
+        ArgumentCaptor<Boolean> withDishes = ArgumentCaptor.forClass(Boolean.class);
 
-        mockMvc.perform(get(url + "?startDate=1985-10-08")).andExpect(status().isOk());
+        mockMvc.perform(get(url + "?startDate=1985-10-08&includeDishes=true")).andExpect(status().isOk());
         verify(dayDataHandler, times(1)).getDayByRange(
                 startDate.capture(),
-                endDate.capture()
+                endDate.capture(),
+                withDishes.capture()
         );
         Assertions.assertEquals("1985-10-08", startDate.getValue().toString());
         Assertions.assertNull(endDate.getValue());
+        Assertions.assertEquals(true, withDishes.getValue());
+    }
+
+    @Test
+    @WithMockUser(username = "testUser")
+    public void shouldReturnDayByRangeWithoutDishes() throws Exception {
+        String url = "/days";
+        ArgumentCaptor<LocalDate> startDate = ArgumentCaptor.forClass(LocalDate.class);
+        ArgumentCaptor<LocalDate> endDate = ArgumentCaptor.forClass(LocalDate.class);
+        ArgumentCaptor<Boolean> withDishes = ArgumentCaptor.forClass(Boolean.class);
+
+        mockMvc.perform(get(url + "?startDate=1985-10-08&endDate=1986-11-10")
+        ).andExpect(status().isOk());
+        verify(dayDataHandler, times(1)).getDayByRange(
+                startDate.capture(),
+                endDate.capture(),
+                withDishes.capture()
+        );
+        Assertions.assertEquals("1985-10-08", startDate.getValue().toString());
+        Assertions.assertEquals("1986-11-10", endDate.getValue().toString());
+        Assertions.assertEquals(false, withDishes.getValue());
     }
 
     @Test

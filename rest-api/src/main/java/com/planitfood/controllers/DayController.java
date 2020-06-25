@@ -20,12 +20,16 @@ public class DayController {
     DayDataHandler dayDataHandler;
 
     @GetMapping("/days")
-    List<Day> search(@RequestParam("startDate")
-                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                     @RequestParam(value = "endDate", required = false)
-                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) throws Exception {
+    List<Day> search(
+            @RequestParam(required = false) Boolean includeDishes,
+            @RequestParam(value = "startDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) throws Exception {
         try {
-            return dayDataHandler.getDayByRange(startDate, endDate);
+            boolean withDishes = includeDishes != null && includeDishes;
+            return dayDataHandler.getDayByRange(startDate, endDate, withDishes);
         } catch (Exception e) {
             throw e;
         }
