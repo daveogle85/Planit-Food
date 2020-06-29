@@ -20,10 +20,9 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11.0.7
-      working-directory: rest-api
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-      working-directory: rest-apit
+      working-directory: rest-api
     - name: Build with Gradle
       run: ./gradlew build
       working-directory: rest-api
