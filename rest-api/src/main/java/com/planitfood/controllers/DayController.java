@@ -56,10 +56,9 @@ public class DayController {
     }
 
     @DeleteMapping("/days/{date}")
-    String deleteDay(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) throws Exception {
+    Day deleteDay(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) throws Exception {
         try {
-            dayDataHandler.deleteDay(date);
-            return date.toString() + " deleted";
+            return dayDataHandler.deleteDay(date);
         } catch (Exception e) {
             throw e;
         }

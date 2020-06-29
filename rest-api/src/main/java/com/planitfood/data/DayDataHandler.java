@@ -75,9 +75,10 @@ public class DayDataHandler {
         }
     }
 
-    public void deleteDay(LocalDate date) {
+    public Day deleteDay(LocalDate date) {
         final Day toDelete = new Day(date);
         this.dynamoDB.getMapper().delete(toDelete);
+        return toDelete;
     }
 
     private List<Day> scanDays(DynamoDBScanExpression scanExpression) {
