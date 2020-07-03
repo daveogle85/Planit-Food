@@ -1,5 +1,7 @@
 package com.planitfood.data;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
@@ -17,6 +19,12 @@ public class DynamoDB implements InitializingBean {
     private AmazonDynamoDB client;
     private DynamoDBMapper mapper;
 
+    @Value("${amazon.aws.accesskey}")
+    private String amazonAWSAccessKey;
+
+    @Value("${amazon.aws.secretkey}")
+    private String amazonAWSSecretKey;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         this.client = getDataBase();
@@ -26,12 +34,16 @@ public class DynamoDB implements InitializingBean {
     private AmazonDynamoDB getDataBase() {
         AmazonDynamoDBClientBuilder client = AmazonDynamoDBClientBuilder.standard();
 
-        if(this.environment.equals("DEV")) {
+        if (this.environment.equals("DEV")) {
             return client.withEndpointConfiguration(
                     new AwsClientBuilder.EndpointConfiguration("http://localhost:8000", "us-east-1")
             ).build();
         } else {
-            return client.withRegion(Regions.EU_WEST_2).build();
+            BasicAWSCredentials awsCreds = new BasicAWSCredentials(amazonAWSAccessKey, amazonAWSSecretKey);
+            return client
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                    .withRegion(Regions.EU_WEST_2)
+                    .build();
         }
     }
 
