@@ -1,6 +1,6 @@
 environment:
-#  current: "DEV"
-  current: "PROD"
+  current: "DEV"
+#  current: "PROD"
 server:
   servlet:
     context-path: /api
