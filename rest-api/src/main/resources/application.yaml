@@ -4,12 +4,16 @@ environment:
 server:
   servlet:
     context-path: /api
-  port: 5000
+# port: 5000
 #  ssl:
 #    key-store-type: PKCS12
-#    key-store: classpath:baeldung.p12
+#    key-store: classpath:keystore/baeldung.p12
 #    key-store-password: ******
 #    key-alias: baeldung
+amazon:
+  aws:
+    accesskey: "********"
+    secretkey: "********"
 auth0:
   audience: https://planitfood/api
 spring:
