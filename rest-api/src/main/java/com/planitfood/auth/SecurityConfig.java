@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
 @EnableWebSecurity
@@ -33,12 +32,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurerAdapter() {
+        return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                .allowedMethods("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .allowedOrigins("http://localhost:3000");
+                        .allowedMethods("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                        .allowedOrigins("http://localhost:3000", "https://release.d2ttravotajvo0.amplifyapp.com");
             }
         };
     }
