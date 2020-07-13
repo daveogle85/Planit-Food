@@ -27,11 +27,15 @@ public class DishDataHandler {
     @Autowired
     private MealDataHandler mealDataHandler;
 
-    public List<Dish> getAllDishes() {
+    public List<Dish> getAllDishes(boolean withIngredients) {
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
 
         List<Dish> results = dynamoDB.getMapper().scan(Dish.class, scanExpression);
-        return results.stream().map(r -> addIngredientsToDish(r)).collect(Collectors.toList());
+
+        if(withIngredients) {
+            return results.stream().map(r -> addIngredientsToDish(r)).collect(Collectors.toList());
+        }
+        return results;
     }
 
     public Dish getDishById(String id) throws Exception {

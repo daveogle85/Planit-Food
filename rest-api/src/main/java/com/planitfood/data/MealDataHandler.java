@@ -31,11 +31,14 @@ public class MealDataHandler {
     DynamoDB dynamoDB;
 
 
-    public List<Meal> getAllMeals() {
+    public List<Meal> getAllMeals(boolean addDishes) {
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
 
         List<Meal> results = dynamoDB.getMapper().scan(Meal.class, scanExpression);
-        return results.stream().map(r -> addDishesToMeal(r)).collect(Collectors.toList());
+        if (addDishes) {
+            return results.stream().map(r -> addDishesToMeal(r)).collect(Collectors.toList());
+        }
+        return results;
     }
 
     public Meal getMealById(String id) throws Exception {
@@ -147,7 +150,6 @@ public class MealDataHandler {
         if (mealDishes == null) {
             return meal;
         }
-
         mealDishes.forEach(dish -> transactionLoadRequest.addLoad(dish));
         List<Dish> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDB.getMapper());
         results = results.stream().map(dish -> dishDataHandler.addIngredientsToDish(dish)).collect(Collectors.toList());

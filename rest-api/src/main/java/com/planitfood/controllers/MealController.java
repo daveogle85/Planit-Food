@@ -17,14 +17,15 @@ public class MealController {
 
     @GetMapping("/meals")
     List<Meal> search(
-            @RequestParam(required = false) String searchName
-
+            @RequestParam(required = false) String searchName,
+            @RequestParam(required = false) Boolean includeDishes
     ) throws Exception {
         try {
+            boolean withDishes = includeDishes != null && includeDishes;
             if (searchName == null) {
-                return mealDataHandler.getAllMeals();
+                return mealDataHandler.getAllMeals(withDishes);
             }
-            return mealDataHandler.getMealsByQuery(searchName, null, true);
+            return mealDataHandler.getMealsByQuery(searchName, null, withDishes);
         } catch (Exception e) {
             throw e;
         }
