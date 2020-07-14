@@ -124,6 +124,14 @@ public class DishDataHandler {
 
         List<Dish> results = scanDishes(scanExpression);
 
+        // If a single char then filter the results to just starts with
+        if (searchName != null && searchName.length() == 1) {
+            results = results.stream()
+                    .filter(r -> r.getSearchName()
+                            .startsWith(searchName.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
         if (!addIngredients) {
             return results;
         }

@@ -89,13 +89,13 @@ public class MealDataHandler {
         return meal;
     }
 
-    public List<Meal> addMealsToDatabase(List<Meal> meals, boolean addDishes) throws  Exception {
+    public List<Meal> addMealsToDatabase(List<Meal> meals, boolean addDishes) throws Exception {
         List<Meal> updatedMeals = new ArrayList<>();
         for (Meal meal : meals) {
             Meal foundMeal = meal.getId() == null ? null : dynamoDB.getMapper().load(Meal.class, meal.getId());
             if (foundMeal == null) {
                 if (addDishes) {
-                  foundMeal = addMealDishesToDatabase(meal);
+                    foundMeal = addMealDishesToDatabase(meal);
                 }
                 updatedMeals.add(addMeal(foundMeal));
 
@@ -131,6 +131,14 @@ public class MealDataHandler {
                 .withExpressionAttributeValues(eav);
 
         List<Meal> results = scanMeals(scanExpression);
+
+        // If a single char then filter the results to just starts with
+        if (searchName != null && searchName.length() == 1) {
+            results = results.stream()
+                    .filter(r -> r.getSearchName()
+                            .startsWith(searchName.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
 
         if (!addDishes) {
             return results;
