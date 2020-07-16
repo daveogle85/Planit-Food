@@ -56,6 +56,7 @@ public class DishDataHandler {
                 updatedDishes.add(addDish(dish));
 
             } else {
+                dynamoDB.getMapper().save(dish);
                 updatedDishes.add(dish);
             }
         }
