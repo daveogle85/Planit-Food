@@ -9,6 +9,7 @@ import com.planitfood.models.Ingredient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,22 @@ public class IngredientsDataHandler {
         return ingredient;
     }
 
+    public List<Ingredient> addIngredientsToDatabase(List<Ingredient> ingredients) throws Exception {
+        List<Ingredient> updatedIngredients = new ArrayList<>();
+        for (Ingredient ingredient : ingredients) {
+            Ingredient foundIngredient = ingredient.getId() == null ?
+                    null :
+                    dynamoDB.getMapper().load(Ingredient.class, ingredient.getId());
+            if (foundIngredient == null) {
+                updatedIngredients.add(addIngredient(ingredient));
+            } else {
+                dynamoDB.getMapper().save(ingredient);
+                updatedIngredients.add(ingredient);
+            }
+        }
+        return updatedIngredients;
+    }
+
     public Ingredient updateIngredient(Ingredient ingredient) throws Exception {
         Ingredient found = dynamoDB.getMapper().load(Ingredient.class, ingredient.getId());
 
@@ -57,7 +74,7 @@ public class IngredientsDataHandler {
     public void deleteIngredient(String id) throws UnableToDeleteException {
         final Ingredient toDelete = new Ingredient(id);
         List<Dish> found = dishDataHandler.getDishesByQuery(null, id, null, false);
-        if(found != null & found.size() > 0) {
+        if (found != null & found.size() > 0) {
             throw new UnableToDeleteException(id, "ingredient is used in dish " + found.get(0).getId());
         } else {
             this.dynamoDB.getMapper().delete(toDelete);

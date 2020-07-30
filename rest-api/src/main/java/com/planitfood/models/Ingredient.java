@@ -1,6 +1,7 @@
 package com.planitfood.models;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
+import com.planitfood.enums.Unit;
 
 import javax.validation.constraints.NotNull;
 
@@ -12,7 +13,8 @@ public class Ingredient {
     @NotNull
     private String name;
     private String searchName;
-    private Quantity quantity;
+    private Double quantity;
+    private Unit unit = Unit.UNIT;
 
     // Needed for DynamoDB
     public Ingredient() {
@@ -26,6 +28,14 @@ public class Ingredient {
         this.id = id;
         this.name = name;
         this.searchName = name.toLowerCase();
+    }
+
+    public Ingredient(String id, String name, double quantity, Unit unit) {
+        this.id = id;
+        this.name = name;
+        this.searchName = name.toLowerCase();
+        this.quantity = quantity;
+        this.unit = unit;
     }
 
     @DynamoDBHashKey(attributeName = "ID")
@@ -63,12 +73,22 @@ public class Ingredient {
     }
 
     @DynamoDBIgnore
-    public Quantity getQuantity() {
+    public Double getQuantity() {
         return quantity;
     }
 
     @DynamoDBIgnore
-    public void setQuantity(Quantity quantity) {
+    public void setQuantity(double quantity) {
         this.quantity = quantity;
+    }
+
+    @DynamoDBIgnore
+    public Unit getUnit() {
+        return unit;
+    }
+
+    @DynamoDBIgnore
+    public void setUnit(Unit unit) {
+        this.unit = unit;
     }
 }
