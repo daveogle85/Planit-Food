@@ -9,6 +9,7 @@ import com.planitfood.exceptions.UnableToDeleteException;
 import com.planitfood.models.Dish;
 import com.planitfood.models.Ingredient;
 import com.planitfood.models.Meal;
+import com.planitfood.typeConverters.QuantitiesTypeConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,11 +28,20 @@ public class DishDataHandler {
     @Autowired
     private MealDataHandler mealDataHandler;
 
-    public List<Dish> getAllDishes() {
+    @Autowired
+    private IngredientsDataHandler ingredientsDataHandler;
+
+    public List<Dish> getAllDishes(boolean withIngredients) {
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
 
         List<Dish> results = dynamoDB.getMapper().scan(Dish.class, scanExpression);
-        return results.stream().map(r -> addIngredientsToDish(r)).collect(Collectors.toList());
+
+        if(withIngredients) {
+            return results.stream()
+                    .map(r -> addIngredientsToDish(r))
+                    .collect(Collectors.toList());
+        }
+        return results;
     }
 
     public Dish getDishById(String id) throws Exception {
@@ -39,6 +49,7 @@ public class DishDataHandler {
 
         if (found != null) {
             return addIngredientsToDish(found);
+
         } else {
             throw new EntityNotFoundException("dish", id);
         }
@@ -47,11 +58,13 @@ public class DishDataHandler {
     public List<Dish> addDishesToDatabase(List<Dish> dishes) throws Exception {
         List<Dish> updatedDishes = new ArrayList<>();
         for (Dish dish : dishes) {
+            dish = QuantitiesTypeConverter.convertIngredientsToQuantities(dish);
             Dish foundDish = dish.getId() == null ? null : dynamoDB.getMapper().load(Dish.class, dish.getId());
             if (foundDish == null) {
                 updatedDishes.add(addDish(dish));
 
             } else {
+                dynamoDB.getMapper().save(dish);
                 updatedDishes.add(dish);
             }
         }
@@ -59,6 +72,7 @@ public class DishDataHandler {
     }
 
     public Dish addDish(Dish dish) throws Exception {
+        dish = QuantitiesTypeConverter.convertIngredientsToQuantities(dish);
         dynamoDB.getMapper().save(dish);
         return dish;
     }
@@ -67,11 +81,19 @@ public class DishDataHandler {
         Dish found = dynamoDB.getMapper().load(Dish.class, dish.getId());
 
         if (found != null) {
+            dish = addDishIngredientsToDatabase(dish);
+            dish = QuantitiesTypeConverter.convertIngredientsToQuantities(dish);
             dynamoDB.getMapper().save(dish);
             return dish;
         } else {
             throw new EntityNotFoundException("dish", dish.getId());
         }
+    }
+
+    public Dish addDishIngredientsToDatabase(Dish dish) throws Exception {
+        List<Ingredient> ingredients = dish.getIngredients();
+        dish.setIngredients(ingredientsDataHandler.addIngredientsToDatabase(ingredients));
+        return dish;
     }
 
     public void deleteDish(String id) throws UnableToDeleteException {
@@ -120,11 +142,21 @@ public class DishDataHandler {
 
         List<Dish> results = scanDishes(scanExpression);
 
+        // If a single char then filter the results to just starts with
+        if (searchName != null && searchName.length() == 1) {
+            results = results.stream()
+                    .filter(r -> r.getSearchName()
+                            .startsWith(searchName.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
         if (!addIngredients) {
             return results;
         }
 
-        return results.stream().map(r -> addIngredientsToDish(r)).collect(Collectors.toList());
+        return results.stream()
+                .map(r -> addIngredientsToDish(r))
+                .collect(Collectors.toList());
     }
 
     private List<Dish> scanDishes(DynamoDBScanExpression scanExpression) {
@@ -143,6 +175,7 @@ public class DishDataHandler {
         dishIngredients.forEach(ingredient -> transactionLoadRequest.addLoad(ingredient));
         List<Ingredient> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDB.getMapper());
         dishById.setIngredients(results);
+        dishById = QuantitiesTypeConverter.convertQuantitiesToIngredients(dishById);
         return dishById;
     }
 }

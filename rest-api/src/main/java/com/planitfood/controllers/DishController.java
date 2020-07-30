@@ -29,14 +29,15 @@ public class DishController {
     List<Dish> search(
             @RequestParam(required = false) String searchName,
             @RequestParam(required = false) String ingredientId,
-            @RequestParam(required = false) DishType dishType
-
+            @RequestParam(required = false) DishType dishType,
+            @RequestParam(required = false) Boolean includeIngredients
     ) throws Exception {
         try {
+            boolean withIngredients = includeIngredients != null && includeIngredients;
             if (searchName == null && ingredientId == null && dishType == null) {
-                return dishDataHandler.getAllDishes();
+                return dishDataHandler.getAllDishes(withIngredients);
             }
-            return dishDataHandler.getDishesByQuery(searchName, ingredientId, dishType, true);
+            return dishDataHandler.getDishesByQuery(searchName, ingredientId, dishType, withIngredients);
         } catch (Exception e) {
             throw e;
         }

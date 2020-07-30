@@ -1,13 +1,16 @@
 package com.planitfood.models;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.planitfood.enums.DishType;
 import com.planitfood.typeConverters.DishTypeTypeConverter;
 import com.planitfood.typeConverters.IngredientsTypeConverter;
+import com.planitfood.typeConverters.QuantitiesTypeConverter;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @DynamoDBTable(tableName = "Dish")
 public class Dish {
@@ -20,6 +23,7 @@ public class Dish {
     private List<Ingredient> ingredients;
     private String notes;
     private Float cookingTime;
+    private Map quantities;
 
     // Needed for DynamoDB
     public Dish() {
@@ -118,5 +122,18 @@ public class Dish {
     @DynamoDBAttribute(attributeName = "DishType")
     public void setDishType(DishType dishType) {
         this.dishType = dishType;
+    }
+
+    @JsonIgnore
+    @DynamoDBAttribute(attributeName = "Quantities")
+    @DynamoDBTypeConverted(converter = QuantitiesTypeConverter.class)
+    public Map getQuantities() {
+        return this.quantities;
+    }
+
+    @DynamoDBAttribute(attributeName = "Quantities")
+    @DynamoDBTypeConverted(converter = QuantitiesTypeConverter.class)
+    public void setQuantities(Map quantities) {
+        this.quantities = quantities;
     }
 }

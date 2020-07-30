@@ -93,29 +93,29 @@ public class Populate {
     @WithMockUser(username = "testUser")
     public void shouldAddNewDishes() throws Exception {
         String url = "/dishes";
-        List<Ingredient> ingredients =ingredientsDataHandler.getAllIngredients();
+        List<Ingredient> ingredients = ingredientsDataHandler.getAllIngredients();
         ArrayList<Dish> dishes = new ArrayList<Dish>();
-        for(int i = 0; i < 8; i++) {
+        for (int i = 0; i < 8; i++) {
             dishes.add(new Dish());
         }
 
-        for(int i = 0; i < dishes.size(); i++) {
-           Dish d = dishes.get(i);
-           d.setName("Test Dish " + (i + 1));
-           if(i % 3 == 0) {
-               d.setDishType(DishType.MAIN);
-           } else {
-               d.setDishType(DishType.SIDE);
-           }
-           d.setNotes("Some notes");
-           d.setIngredients(ingredients);
+        for (int i = 0; i < dishes.size(); i++) {
+            Dish d = dishes.get(i);
+            d.setName("Test Dish " + (i + 1));
+            if (i % 3 == 0) {
+                d.setDishType(DishType.MAIN);
+            } else {
+                d.setDishType(DishType.SIDE);
+            }
+            d.setNotes("Some notes");
+            d.setIngredients(ingredients);
         }
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
 
-        for(Dish dish: dishes) {
+        for (Dish dish : dishes) {
             makeRequest(ow.writeValueAsString(dish), url);
         }
     }
@@ -126,19 +126,19 @@ public class Populate {
     public void shouldAddNewMeals() throws Exception {
         Random rand = new Random();
         String url = "/meals";
-        List<Dish> dishes = dishDataHandler.getAllDishes();
+        List<Dish> dishes = dishDataHandler.getAllDishes(true);
 
         ArrayList<Meal> meals = new ArrayList<Meal>();
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 50; i++) {
             meals.add(new Meal());
         }
 
-        for(int i = 0; i < meals.size(); i++) {
+        for (int i = 0; i < meals.size(); i++) {
             Meal m = meals.get(i);
             m.setName("Test Meal " + (i + 1));
             m.setNotes("Some notes");
             List<Dish> dishList = new ArrayList<Dish>();
-            for(int j = 0; j < 3; j++) {
+            for (int j = 0; j < 3; j++) {
                 Dish d = dishes.get(rand.nextInt(dishes.size() - 1));
                 dishList.add(d);
             }
@@ -148,7 +148,7 @@ public class Populate {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
-        for(Meal meal: meals) {
+        for (Meal meal : meals) {
             makeRequest(ow.writeValueAsString(meal), url);
         }
     }
@@ -159,16 +159,16 @@ public class Populate {
     public void shouldAddNewDays() throws Exception {
         String url = "/days";
         Random rand = new Random();
-        List<Meal> meals = mealDataHandler.getAllMeals();
+        List<Meal> meals = mealDataHandler.getAllMeals(true);
 
         ArrayList<Day> days = new ArrayList<Day>();
-        for(int i = 0; i < 14; i++) {
+        for (int i = 0; i < 14; i++) {
             days.add(new Day());
         }
 
         LocalDate start = LocalDate.now().minusDays(7);
 
-        for(int i = 0; i < days.size(); i++) {
+        for (int i = 0; i < days.size(); i++) {
             Day d = days.get(i);
             d.setDate(start);
             start = start.plusDays(1);
@@ -177,7 +177,7 @@ public class Populate {
             d.setMeal(m);
         }
 
-        for(Day day: days) {
+        for (Day day : days) {
             makeRequest(convertDayToJson(day), url);
         }
     }

@@ -48,10 +48,24 @@ public class MealsTests {
     @WithMockUser(username = "testUser")
     public void shouldReturnAll() throws Exception {
         String url = "/meals";
+        ArgumentCaptor<Boolean> addDishes = ArgumentCaptor.forClass(Boolean.class);
         mockMvc.perform(get(url))
                 .andExpect(status().isOk());
 
-        verify(mealDataHandler, times(1)).getAllMeals();
+        verify(mealDataHandler, times(1)).getAllMeals(addDishes.capture());
+        Assertions.assertFalse(addDishes.getValue());
+    }
+
+    @Test
+    @WithMockUser(username = "testUser")
+    public void shouldReturnAllWithDishes() throws Exception {
+        String url = "/meals?includeDishes=true";
+        ArgumentCaptor<Boolean> addDishes = ArgumentCaptor.forClass(Boolean.class);
+        mockMvc.perform(get(url))
+                .andExpect(status().isOk());
+
+        verify(mealDataHandler, times(1)).getAllMeals(addDishes.capture());
+        Assertions.assertTrue(addDishes.getValue());
     }
 
     @Test
@@ -63,6 +77,25 @@ public class MealsTests {
         ArgumentCaptor<Boolean> addDishes = ArgumentCaptor.forClass(Boolean.class);
 
         mockMvc.perform(get(url + "?searchName=bob")).andExpect(status().isOk());
+        verify(mealDataHandler, times(1)).getMealsByQuery(
+                searchName.capture(),
+                dishId.capture(),
+                addDishes.capture()
+        );
+        Assertions.assertEquals("bob", searchName.getValue());
+        Assertions.assertNull(dishId.getValue());
+        Assertions.assertFalse(addDishes.getValue());
+    }
+
+    @Test
+    @WithMockUser(username = "testUser")
+    public void shouldSearchMealsByNameWithFullResults() throws Exception {
+        String url = "/meals";
+        ArgumentCaptor<String> searchName = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> dishId = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Boolean> addDishes = ArgumentCaptor.forClass(Boolean.class);
+
+        mockMvc.perform(get(url + "?searchName=bob&includeDishes=true")).andExpect(status().isOk());
         verify(mealDataHandler, times(1)).getMealsByQuery(
                 searchName.capture(),
                 dishId.capture(),
