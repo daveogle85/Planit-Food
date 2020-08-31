@@ -2,10 +2,14 @@ package com.planitfood.data;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.TransactionLoadRequest;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.planitfood.controllers.DayController;
 import com.planitfood.exceptions.EntityNotFoundException;
 import com.planitfood.models.Day;
 import com.planitfood.models.Meal;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +26,8 @@ import static java.time.temporal.ChronoUnit.MONTHS;
 @Service
 public class DayDataHandler {
 
+    private static Logger logger = LogManager.getLogger(DayDataHandler.class);
+
     @Autowired
     private MealDataHandler mealDataHandler;
 
@@ -37,10 +43,7 @@ public class DayDataHandler {
         final LocalDate endDate = optionalEndDate;
         List<String> dayIds = getDayIdsForRange(startDate, endDate);
 
-        dayIds.forEach(id -> {
-            results.addAll(queryByIdAndRange(id, startDate, endDate, withDishes));
-        });
-        return results;
+        return queryByIdAndRange(dayIds, startDate, endDate, withDishes);
     }
 
     public List<Day> getDaysByQuery(String mealId, boolean withMeals) {
@@ -86,25 +89,38 @@ public class DayDataHandler {
         return matchedDishes;
     }
 
-    private List<Day> queryByIdAndRange(String id, LocalDate startDate, LocalDate endDate, boolean withDishes) {
-        Map<String, AttributeValue> eav = new HashMap();
-        final String rangeQuery = "ID = :val1 and DayDate between :val2 and :val3";
-        eav.put(":val1", new AttributeValue().withS(id));
-        eav.put(":val2", new AttributeValue().withS(startDate.toString()));
-        eav.put(":val3", new AttributeValue().withS(endDate.toString()));
-        final String rangeQuery1 = "ID = :val1 and DayDate between :val2 and :val3";
+    private List<Day> queryByIdAndRange(List<String> ids, LocalDate startDate, LocalDate endDate, boolean withDishes) {
+        logger.info("start queryByIdAndRange");
 
-        DynamoDBQueryExpression<Day> queryExpression = new DynamoDBQueryExpression<Day>()
-                .withKeyConditionExpression(rangeQuery)
-                .withKeyConditionExpression(rangeQuery1)
-                .withExpressionAttributeValues(eav);
+        if (ids.size() == 0) {
+            return  new ArrayList<>();
+        }
 
-        List<Day> results = dynamoDB.getMapper().query(Day.class, queryExpression);
+        ArrayList<Day> results = new ArrayList<>();
+
+        for(int i = 0; i < ids.size(); i++) {
+            String rangeQuery = "";
+            Map<String, AttributeValue> eav = new HashMap();
+            eav.put(":startDate", new AttributeValue().withS(startDate.toString()));
+            eav.put(":endDate", new AttributeValue().withS(endDate.toString()));
+            String val = ":val1";
+            rangeQuery += "ID = " + val + " and DayDate between :startDate and :endDate";
+            eav.put(val, new AttributeValue().withS(val));
+
+            DynamoDBQueryExpression<Day> queryExpression = new DynamoDBQueryExpression<Day>()
+                    .withKeyConditionExpression(rangeQuery)
+                    .withExpressionAttributeValues(eav);
+
+            results.addAll(dynamoDB.getMapper().query(Day.class, queryExpression));
+        }
+
+        logger.info("return queryByIdAndRange " + ids);
         return results.stream().map(r -> addMealToDay(r, withDishes)).collect(Collectors.toList());
 
     }
 
     public Day addMealToDay(Day day, boolean withDishes) {
+        logger.info("addMealToDay " + day.getId());
         Meal dayMeal = day.getMeal();
 
         if (dayMeal == null) {
@@ -117,10 +133,12 @@ public class DayDataHandler {
             dayMeal = mealDataHandler.addDishIdAndNameToMeal(dayMeal);
         }
         day.setMeal(dayMeal);
+        logger.info("return addMealToDay " + day.getId());
         return day;
     }
 
     private List<String> getDayIdsForRange(LocalDate startDate, LocalDate endDate) {
+        logger.info("get id's for range...");
         long monthsBetween = getMonthsBetween(startDate, endDate);
         List<String> ids = new ArrayList<>();
         ids.add(Day.createId(startDate));
@@ -128,6 +146,7 @@ public class DayDataHandler {
             startDate = startDate.plusMonths(1);
             ids.add(Day.createId(startDate));
         }
+        logger.info("return id's for range...");
         return ids;
     }
 
