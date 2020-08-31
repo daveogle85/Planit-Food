@@ -9,6 +9,8 @@ import com.planitfood.exceptions.EntityNotFoundException;
 import com.planitfood.models.Day;
 import com.planitfood.models.Dish;
 import com.planitfood.models.Meal;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class MealDataHandler {
+
+    private static Logger logger = LogManager.getLogger(MealDataHandler.class);
 
     @Autowired
     private DayDataHandler dayDataHandler;
@@ -166,6 +170,7 @@ public class MealDataHandler {
     }
 
     public Meal addDishIdAndNameToMeal(Meal meal) {
+        logger.info("addDishIdAndNameToMeal " + meal.getName());
         TransactionLoadRequest transactionLoadRequest = new TransactionLoadRequest();
         List<Dish> mealDishes = meal.getDishes();
 
@@ -179,6 +184,7 @@ public class MealDataHandler {
         });
         List<Dish> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDB.getMapper());
         meal.setDishes(results);
+        logger.info("return addDishIdAndNameToMeal " + meal.getName());
         return meal;
     }
 }
