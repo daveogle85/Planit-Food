@@ -99,16 +99,13 @@ public class DayDataHandler {
         ArrayList<Day> results = new ArrayList<>();
 
         for(int i = 0; i < ids.size(); i++) {
-            String rangeQuery = "";
             Map<String, AttributeValue> eav = new HashMap();
             eav.put(":startDate", new AttributeValue().withS(startDate.toString()));
             eav.put(":endDate", new AttributeValue().withS(endDate.toString()));
-            String val = ":val1";
-            rangeQuery += "ID = " + val + " and DayDate between :startDate and :endDate";
-            eav.put(val, new AttributeValue().withS(val));
+            eav.put(":val1", new AttributeValue().withS(ids.get(i)));
 
             DynamoDBQueryExpression<Day> queryExpression = new DynamoDBQueryExpression<Day>()
-                    .withKeyConditionExpression(rangeQuery)
+                    .withKeyConditionExpression("ID = :val1 and DayDate between :startDate and :endDate")
                     .withExpressionAttributeValues(eav);
 
             results.addAll(dynamoDB.getMapper().query(Day.class, queryExpression));

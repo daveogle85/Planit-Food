@@ -13,7 +13,7 @@
 #  limitations under the License.
 # [START gae_flex_quickstart_yaml]
 runtime: java11
-instance_class: F1
+instance_class: F2
 env: flex
 
 handlers:
