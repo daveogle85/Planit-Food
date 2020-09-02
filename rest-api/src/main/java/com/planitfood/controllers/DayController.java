@@ -1,6 +1,7 @@
 package com.planitfood.controllers;
 
 import com.planitfood.data.DayDataHandler;
+import com.planitfood.exceptions.RequestFailedException;
 import com.planitfood.models.Day;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,12 +46,15 @@ public class DayController {
     }
 
     @PostMapping("/days")
-    Day newDay(@RequestBody Day newDay) throws Exception {
+    Day newDay(@RequestBody Day newDay, HttpServletRequest request) throws Exception {
         try {
+            logger.info(request.getRequestURL() + ": post request");
             newDay = dayDataHandler.addDay(newDay);
             return newDay;
         } catch (Exception e) {
-            throw e;
+            throw new RequestFailedException(request, e);
+        } finally {
+            logger.info(request.getRequestURL() + ": return");
         }
     }
 

@@ -29,13 +29,9 @@ public class DayDataHandler {
     private static Logger logger = LogManager.getLogger(DayDataHandler.class);
 
     @Autowired
-    private MealDataHandler mealDataHandler;
-
-    @Autowired
     private DynamoDB dynamoDB;
 
     public List<Day> getDayByRange(final LocalDate startDate, LocalDate optionalEndDate, boolean withDishes) throws Exception {
-        List<Day> results = new ArrayList<>();
         if (optionalEndDate == null) {
             optionalEndDate = startDate;
         }
@@ -51,15 +47,11 @@ public class DayDataHandler {
         final String mealIdQuery = "MealID = :val1";
         eav.put(":val1", new AttributeValue().withS(mealId));
 
-        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+        DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
                 .withFilterExpression(mealIdQuery)
                 .withExpressionAttributeValues(eav);
 
-        List<Day> results = scanDays(scanExpression);
-        if (!withMeals) {
-            return results;
-        }
-        return results.stream().map(r -> addMealToDay(r, true)).collect(Collectors.toList());
+        return queryDays(queryExpression);
     }
 
     public Day addDay(Day day) throws Exception {
@@ -89,6 +81,11 @@ public class DayDataHandler {
         return matchedDishes;
     }
 
+    private List<Day> queryDays(DynamoDBQueryExpression queryExpression) {
+        List<Day> matchedDishes = dynamoDB.getMapper().query(Day.class, queryExpression);
+        return matchedDishes;
+    }
+
     private List<Day> queryByIdAndRange(List<String> ids, LocalDate startDate, LocalDate endDate, boolean withDishes) {
         logger.info("start queryByIdAndRange");
 
@@ -112,26 +109,8 @@ public class DayDataHandler {
         }
 
         logger.info("return queryByIdAndRange " + ids);
-        return results.stream().map(r -> addMealToDay(r, withDishes)).collect(Collectors.toList());
+        return results;
 
-    }
-
-    public Day addMealToDay(Day day, boolean withDishes) {
-        logger.info("addMealToDay " + day.getId());
-        Meal dayMeal = day.getMeal();
-
-        if (dayMeal == null) {
-            return day;
-        }
-
-        dayMeal = dynamoDB.getMapper().load(Meal.class, dayMeal.getId());
-
-        if (withDishes) {
-            dayMeal = mealDataHandler.addDishIdAndNameToMeal(dayMeal);
-        }
-        day.setMeal(dayMeal);
-        logger.info("return addMealToDay " + day.getId());
-        return day;
     }
 
     private List<String> getDayIdsForRange(LocalDate startDate, LocalDate endDate) {
