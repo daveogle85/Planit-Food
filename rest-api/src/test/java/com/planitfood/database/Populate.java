@@ -9,10 +9,7 @@ import com.planitfood.data.DishDataHandler;
 import com.planitfood.data.IngredientsDataHandler;
 import com.planitfood.data.MealDataHandler;
 import com.planitfood.enums.DishType;
-import com.planitfood.models.Day;
-import com.planitfood.models.Dish;
-import com.planitfood.models.Ingredient;
-import com.planitfood.models.Meal;
+import com.planitfood.models.*;
 import com.planitfood.restApi.PlanitFoodApplication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -174,7 +171,11 @@ public class Populate {
             start = start.plusDays(1);
             d.setNotes("Some notes");
             Meal m = meals.get(rand.nextInt(meals.size() - 1));
-            d.setMeal(m);
+            MealWithFullDish mfd = new MealWithFullDish(m.getId());
+            mfd.setName(m.getName());
+            mfd.setSearchName(m.getSearchName());
+            mfd.setNotes(m.getNotes());
+            d.setMeal(mfd);
         }
 
         for (Day day : days) {

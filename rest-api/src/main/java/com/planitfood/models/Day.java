@@ -14,7 +14,7 @@ public class Day {
     private String id;
     @NotNull
     private LocalDate date;
-    private Meal meal;
+    private MealWithFullDish meal;
     private String notes;
 
     public Day() {
@@ -25,7 +25,7 @@ public class Day {
         this.date = date;
     }
 
-    public Day(LocalDate date, Meal meal) {
+    public Day(LocalDate date, MealWithFullDish meal) {
         this.id = createId(date);
         this.date = date;
         this.meal = meal;
@@ -54,15 +54,15 @@ public class Day {
         this.id = createId(date);
     }
 
-    @DynamoDBTypeConverted(converter = MealTypeConverter.class)
-    @DynamoDBAttribute(attributeName = "MealID")
-    public Meal getMeal() {
+    @DynamoDBTypeConvertedJson
+    @DynamoDBAttribute(attributeName = "Meal")
+    public MealWithFullDish getMeal() {
         return meal;
     }
 
-    @DynamoDBTypeConverted(converter = MealTypeConverter.class)
-    @DynamoDBAttribute(attributeName = "MealID")
-    public void setMeal(Meal meal) {
+    @DynamoDBTypeConvertedJson
+    @DynamoDBAttribute(attributeName = "Meal")
+    public void setMeal(MealWithFullDish meal) {
         this.meal = meal;
     }
 
