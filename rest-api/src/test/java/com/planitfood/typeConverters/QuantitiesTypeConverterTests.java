@@ -17,8 +17,8 @@ public class QuantitiesTypeConverterTests {
     public void convertsIngredientsToQuantities() throws Exception {
         Ingredient i1 = new Ingredient("1", "test 1");
         Ingredient i2 = new Ingredient("2", "test 2");
-        Quantity q1 = new Quantity(12.1, Unit.UNIT);
-        Quantity q2 = new Quantity(2, Unit.G);
+        Quantity q1 = new Quantity(12.1, Unit.UNIT, "1");
+        Quantity q2 = new Quantity(2, Unit.G, "2");
         i1.setQuantity(12.1);
         i2.setQuantity(2);
         i2.setUnit(Unit.G);
@@ -35,8 +35,8 @@ public class QuantitiesTypeConverterTests {
 
     @Test
     public void convertsQuantitiesToIngredients() throws Exception {
-        Quantity q1 = new Quantity(12.1, Unit.UNIT);
-        Quantity q2 = new Quantity(2, Unit.G);
+        Quantity q1 = new Quantity(12.1, Unit.UNIT, "1");
+        Quantity q2 = new Quantity(2, Unit.G, "2");
         Ingredient i1 = new Ingredient("1", "test 1");
         Ingredient i2 = new Ingredient("2", "test 2");
         Ingredient i3 = new Ingredient("3", "test 3");
@@ -60,17 +60,17 @@ public class QuantitiesTypeConverterTests {
     public void convertQuantitiesToString() throws Exception {
         QuantitiesTypeConverter qtc = new QuantitiesTypeConverter();
         HashMap<String, Quantity> test = new HashMap<>();
-        test.put("1", new Quantity(10, Unit.CUP));
+        test.put("1", new Quantity(10, Unit.CUP, "1"));
         Map result = qtc.convert(test);
-        Assertions.assertEquals("{\"quantity\":10.0,\"unit\":\"CUP\"}", result.get("1"));
+        Assertions.assertEquals("{\"quantity\":10.0,\"unit\":\"CUP\",\"ingredientId\":\"1\"}", result.get("1"));
     }
 
     @Test
     public void convertStringToQuantites() throws Exception {
         QuantitiesTypeConverter qtc = new QuantitiesTypeConverter();
         HashMap<String, String> test = new HashMap<>();
-        test.put("1", "{\"quantity\":10.0,\"unit\":\"CUP\"}");
-        Quantity expected = new Quantity(10, Unit.CUP);
+        test.put("1", "{\"quantity\":10.0,\"unit\":\"CUP\",\"ingredientId\":\"1\"}");
+        Quantity expected = new Quantity(10, Unit.CUP, "1");
         Map result = qtc.unconvert(test);
         Assertions.assertEquals(expected, result.get("1"));
     }

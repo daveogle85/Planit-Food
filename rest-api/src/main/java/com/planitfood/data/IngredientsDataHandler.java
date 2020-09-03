@@ -34,15 +34,10 @@ public class IngredientsDataHandler {
 
     public List<Ingredient> getAllIngredients() {
         logger.info("Get all ingredients");
-        Map<String, AttributeValue> eav = new HashMap();
-
-        final String queryString = "PK = :val1";
         PlanitFoodEntity planitFoodEntity = new PlanitFoodEntity(EntityType.INGREDIENT);
-        eav.put(":val1", new AttributeValue().withS(planitFoodEntity.getPK()));
 
         DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
-                .withFilterExpression(queryString)
-                .withExpressionAttributeValues(eav);
+                .withHashKeyValues(planitFoodEntity);
 
         List<PlanitFoodEntity> results = dynamoDB.getMapper().query(PlanitFoodEntity.class, queryExpression);
         logger.info("return all ingredients: " + results.size());
