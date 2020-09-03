@@ -19,7 +19,7 @@ public class QuantitiesTypeConverter implements DynamoDBTypeConverter<Map<String
         if (ingredients != null) {
             for (Ingredient ingredient : ingredients) {
                 if (ingredient.getQuantity() != null) {
-                    Quantity quantity = new Quantity(ingredient.getQuantity(), ingredient.getUnit());
+                    Quantity quantity = new Quantity(ingredient.getQuantity(), ingredient.getUnit(), ingredient.getId());
                     quantities.put(ingredient.getId(), quantity);
                 }
             }

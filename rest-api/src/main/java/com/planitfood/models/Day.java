@@ -2,7 +2,6 @@ package com.planitfood.models;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.planitfood.typeConverters.LocalDateTypeConverter;
-import com.planitfood.typeConverters.MealTypeConverter;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
