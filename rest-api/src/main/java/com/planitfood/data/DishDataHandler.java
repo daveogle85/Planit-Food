@@ -1,26 +1,29 @@
 package com.planitfood.data;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.TransactionLoadRequest;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
+import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.planitfood.enums.DishType;
+import com.planitfood.enums.EntityType;
 import com.planitfood.exceptions.EntityNotFoundException;
 import com.planitfood.exceptions.UnableToDeleteException;
-import com.planitfood.models.Dish;
-import com.planitfood.models.Ingredient;
-import com.planitfood.models.Meal;
-import com.planitfood.typeConverters.QuantitiesTypeConverter;
+import com.planitfood.models.*;
+import com.planitfood.typeConverters.PlanitFoodEntityTypeConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class DishDataHandler {
+
+    private static Logger logger = LogManager.getLogger(DishDataHandler.class);
 
     @Autowired
     private DynamoDB dynamoDB;
@@ -32,23 +35,48 @@ public class DishDataHandler {
     private IngredientsDataHandler ingredientsDataHandler;
 
     public List<Dish> getAllDishes(boolean withIngredients) {
-        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+        logger.info("Get all dishes");
+        PlanitFoodEntity planitFoodEntity = new PlanitFoodEntity(EntityType.DISH);
 
-        List<Dish> results = dynamoDB.getMapper().scan(Dish.class, scanExpression);
+        DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
+                .withHashKeyValues(planitFoodEntity);
 
-        if(withIngredients) {
-            return results.stream()
+        List<PlanitFoodEntity> rawResults = dynamoDB.getMapper().query(PlanitFoodEntity.class, queryExpression);
+
+        if (withIngredients) {
+            return rawResults.stream()
                     .map(r -> addIngredientsToDish(r))
                     .collect(Collectors.toList());
         }
+
+        List<Dish> results = rawResults.stream()
+                .map((result) -> PlanitFoodEntityTypeConverter.convertToDish(result))
+                .collect(Collectors.toList());
+
+        logger.info("return all dishes: " + results.size());
         return results;
+
     }
 
     public Dish getDishById(String id) throws Exception {
-        Dish found = dynamoDB.getMapper().load(Dish.class, id);
+        logger.info("Get dish id " + id);
+        PlanitFoodEntity planitFoodEntity = new PlanitFoodEntity(EntityType.DISH);
+        Map<String, AttributeValue> eav = new HashMap<>();
+        final String query = "contains(SK, :val1)";
+        eav.put(":val1", new AttributeValue().withS(id));
+        DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
+                .withHashKeyValues(planitFoodEntity)
+                .withFilterExpression(query)
+                .withExpressionAttributeValues(eav);
 
-        if (found != null) {
-            return addIngredientsToDish(found);
+        Optional found = dynamoDB.getMapper()
+                .query(PlanitFoodEntity.class, queryExpression).stream().findFirst();
+
+
+        if (found.isPresent()) {
+            PlanitFoodEntity foundDish = (PlanitFoodEntity) found.get();
+            logger.info("Return dish " + foundDish.getName());
+            return addIngredientsToDish(foundDish);
 
         } else {
             throw new EntityNotFoundException("dish", id);
@@ -56,34 +84,44 @@ public class DishDataHandler {
     }
 
     public List<Dish> addDishesToDatabase(List<Dish> dishes) throws Exception {
+        logger.info("add all dishes: " + dishes.size());
         List<Dish> updatedDishes = new ArrayList<>();
         for (Dish dish : dishes) {
-            dish = QuantitiesTypeConverter.convertIngredientsToQuantities(dish);
-            Dish foundDish = dish.getId() == null ? null : dynamoDB.getMapper().load(Dish.class, dish.getId());
+            PlanitFoodEntity entityToFind = new PlanitFoodEntity(EntityType.DISH, dish.getId(), dish.getDishType());
+            PlanitFoodEntity foundDish = dynamoDB.getMapper()
+                    .load(PlanitFoodEntity.class, entityToFind.getPK(), entityToFind.getSK());
             if (foundDish == null) {
-                updatedDishes.add(addDish(dish));
-
-            } else {
-                dynamoDB.getMapper().save(dish);
-                updatedDishes.add(dish);
+                logger.info("updated dish: " + dish.getName());
+                PlanitFoodEntity dishToAdd = new PlanitFoodEntity(EntityType.DISH, dish);
+                dynamoDB.getMapper().save(dishToAdd);
             }
+            updatedDishes.add(dish);
         }
+        logger.info("added all dishes: " + dishes.size());
         return updatedDishes;
     }
 
     public Dish addDish(Dish dish) throws Exception {
-        dish = QuantitiesTypeConverter.convertIngredientsToQuantities(dish);
-        dynamoDB.getMapper().save(dish);
+        PlanitFoodEntity planitFoodEntity = new PlanitFoodEntity(EntityType.DISH, dish);
+        logger.info("Saving dish id " + dish.getId());
+        dynamoDB.getMapper().save(planitFoodEntity);
+        logger.info("dish id " + dish.getId() + " saved to db");
         return dish;
     }
 
     public Dish updateDish(Dish dish) throws Exception {
-        Dish found = dynamoDB.getMapper().load(Dish.class, dish.getId());
+        logger.info("Update dish id " + dish.getId());
+        PlanitFoodEntity toFind =
+                new PlanitFoodEntity(EntityType.DISH, dish.getId(), dish.getDishType());
+        PlanitFoodEntity found = dynamoDB.getMapper()
+                .load(PlanitFoodEntity.class, toFind.getPK(), toFind.getSK());
 
         if (found != null) {
             dish = addDishIngredientsToDatabase(dish);
-            dish = QuantitiesTypeConverter.convertIngredientsToQuantities(dish);
-            dynamoDB.getMapper().save(dish);
+            PlanitFoodEntity planitFoodEntity = new PlanitFoodEntity(EntityType.DISH, dish);
+            logger.info("Saving dish id " + dish.getId());
+            dynamoDB.getMapper().save(planitFoodEntity);
+            logger.info("Saved dish id " + dish.getId());
             return dish;
         } else {
             throw new EntityNotFoundException("dish", dish.getId());
@@ -96,86 +134,118 @@ public class DishDataHandler {
         return dish;
     }
 
-    public void deleteDish(String id) throws UnableToDeleteException {
-        final Dish toDelete = new Dish(id);
+    public void deleteDish(String id) throws Exception {
+        logger.info("Deleting ingredient id " + id);
         List<Meal> found = mealDataHandler.getMealsByQuery(null, id, false);
         if (found != null & found.size() > 0) {
             throw new UnableToDeleteException(id, "dish is used in meal " + found.get(0).getId());
         } else {
+            Dish toDelete = getDishById(id);
             this.dynamoDB.getMapper().delete(toDelete);
         }
     }
 
-    public List<Dish> getDishesByQuery(String searchName, String ingredientId, DishType dishType, boolean addIngredients) {
+    public List<Dish> getDishesByQuery(String searchName, DishType dishType, String ingredientId, boolean addIngredients) {
+        logger.info("Query dish by " + searchName + ":" + ingredientId + ":" + dishType);
         Map<String, AttributeValue> eav = new HashMap();
-        final String searchNameQuery = "contains(SearchName, :val1)";
-        final String ingredientIdQuery = "contains(Ingredients, :val2)";
-        final String dishTypeQuery = "DishType = :val3";
-        String queryString = "";
+        Condition rangeKeyCondition = new Condition();
+        List<PlanitFoodEntity> results;
 
-        if (searchName != null) {
-            eav.put(":val1", new AttributeValue().withS(searchName.toLowerCase()));
-            queryString += searchNameQuery;
-        }
+        if (searchName == null && dishType == null) {
+            final String ingredientIdQuery = "contains(Ingredients, :val1)";
+            eav.put(":val1", new AttributeValue().withS(ingredientId));
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+                    .withFilterExpression(ingredientIdQuery)
+                    .withExpressionAttributeValues(eav);
+            logger.info("Get dishes by ingredient id");
+            results = scanDishes(scanExpression);
+        } else if (searchName == null) {
+            rangeKeyCondition.withComparisonOperator(ComparisonOperator.BEGINS_WITH)
+                    .withAttributeValueList(new AttributeValue().withS("DISH_TYPE#" + dishType));
+            DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression<PlanitFoodEntity>()
+                    .withHashKeyValues(new PlanitFoodEntity(EntityType.DISH))
+                    .withRangeKeyCondition("SK", rangeKeyCondition);
+            logger.info("Get dishes by Dish Type id");
+            results = queryDishes(queryExpression);
+        } else {
+            HashMap<String, Condition> rangeConditions = new HashMap();
+            rangeConditions.put("SEARCH_NAME", new Condition()
+                    .withComparisonOperator(ComparisonOperator.CONTAINS)
+                    .withAttributeValueList(new AttributeValue().withS(searchName)));
 
-        if (ingredientId != null) {
-            eav.put(":val2", new AttributeValue().withS(ingredientId));
-            if (queryString.isEmpty()) {
-                queryString += ingredientIdQuery;
-            } else {
-                queryString += " and " + ingredientIdQuery;
+            if (dishType != null) {
+                rangeConditions.put("SK", new Condition()
+                        .withComparisonOperator(ComparisonOperator.BEGINS_WITH)
+                        .withAttributeValueList(new AttributeValue().withS("DISH_TYPE#" + dishType)));
             }
+
+            DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression<PlanitFoodEntity>()
+                    .withHashKeyValues(new PlanitFoodEntity(EntityType.DISH))
+                    .withRangeKeyConditions(rangeConditions);
+            logger.info("Get dishes by search name");
+            results = queryDishes(queryExpression);
         }
 
-        if (dishType != null) {
-            eav.put(":val3", new AttributeValue().withS(dishType.toString()));
-            if (queryString.isEmpty()) {
-                queryString += dishTypeQuery;
-            } else {
-                queryString += " and " + dishTypeQuery;
-            }
+        if (ingredientId != null && (searchName != null || dishType != null)) {
+            logger.info("filter by ingredient id");
+            results = results.stream()
+                    .filter(r -> r.getQuantities().stream()
+                    .filter(q -> q.getIngredientId() == ingredientId).findFirst().isPresent())
+                    .collect(Collectors.toList());
         }
-
-        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-                .withFilterExpression(queryString)
-                .withExpressionAttributeValues(eav);
-
-        List<Dish> results = scanDishes(scanExpression);
 
         // If a single char then filter the results to just starts with
         if (searchName != null && searchName.length() == 1) {
+            logger.info("filter by starts with " + searchName.toLowerCase());
             results = results.stream()
                     .filter(r -> r.getSearchName()
                             .startsWith(searchName.toLowerCase()))
                     .collect(Collectors.toList());
         }
 
-        if (!addIngredients) {
-            return results;
+        if (addIngredients) {
+            logger.info("add ingredients");
+            results.stream()
+                    .map(r -> addIngredientsToDish(r))
+                    .collect(Collectors.toList());
         }
 
-        return results.stream()
-                .map(r -> addIngredientsToDish(r))
-                .collect(Collectors.toList());
+        logger.info("return dishes");
+        return results.stream().map(r -> PlanitFoodEntityTypeConverter.convertToDish(r)).collect(Collectors.toList());
     }
 
-    private List<Dish> scanDishes(DynamoDBScanExpression scanExpression) {
-        List<Dish> matchedDishes = dynamoDB.getMapper().scan(Dish.class, scanExpression);
+    private List<PlanitFoodEntity> scanDishes(DynamoDBScanExpression scanExpression) {
+        List<PlanitFoodEntity> matchedDishes = dynamoDB.getMapper().scan(PlanitFoodEntity.class, scanExpression);
         return matchedDishes;
     }
 
-    public Dish addIngredientsToDish(Dish dishById) {
-        TransactionLoadRequest transactionLoadRequest = new TransactionLoadRequest();
-        List<Ingredient> dishIngredients = dishById.getIngredients();
+    private List<PlanitFoodEntity> queryDishes(DynamoDBQueryExpression queryExpression) {
+        return dynamoDB.getMapper().query(PlanitFoodEntity.class, queryExpression);
+    }
 
-        if (dishIngredients == null) {
-            return dishById;
+    /**
+     * TEMP Override until refactor is completed
+     * @param dishById
+     * @return
+     */
+    public Dish addIngredientsToDish(Dish dishById) {
+        return addIngredientsToDish(new PlanitFoodEntity(EntityType.DISH, dishById));
+    }
+    public Dish addIngredientsToDish(PlanitFoodEntity dishById) {
+        TransactionLoadRequest transactionLoadRequest = new TransactionLoadRequest();
+        Dish dishWithIngredients = PlanitFoodEntityTypeConverter.convertToDish(dishById);
+        List<Quantity> quantities = dishById.getQuantities();
+
+        if (quantities == null || quantities.size() == 0) {
+            return dishWithIngredients;
         }
 
-        dishIngredients.forEach(ingredient -> transactionLoadRequest.addLoad(ingredient));
-        List<Ingredient> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDB.getMapper());
-        dishById.setIngredients(results);
-        dishById = QuantitiesTypeConverter.convertQuantitiesToIngredients(dishById);
-        return dishById;
+        quantities.forEach(quantity -> transactionLoadRequest
+                .addLoad(new PlanitFoodEntity(EntityType.INGREDIENT, quantity.getIngredientId())));
+        List<PlanitFoodEntity> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDB.getMapper());
+        dishWithIngredients.setIngredients(results.stream()
+                .map(i -> PlanitFoodEntityTypeConverter.convertToIngredientWithQuantity(i, quantities))
+                .collect(Collectors.toList()));
+        return dishWithIngredients;
     }
 }

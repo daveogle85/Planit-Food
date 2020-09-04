@@ -3,6 +3,8 @@ package com.planitfood.data;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
+import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.planitfood.enums.EntityType;
 import com.planitfood.exceptions.EntityNotFoundException;
 import com.planitfood.exceptions.UnableToDeleteException;
@@ -35,7 +37,6 @@ public class IngredientsDataHandler {
     public List<Ingredient> getAllIngredients() {
         logger.info("Get all ingredients");
         PlanitFoodEntity planitFoodEntity = new PlanitFoodEntity(EntityType.INGREDIENT);
-
         DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
                 .withHashKeyValues(planitFoodEntity);
 
@@ -70,14 +71,14 @@ public class IngredientsDataHandler {
         logger.info("add all ingredients: " + ingredients.size());
         List<Ingredient> updatedIngredients = new ArrayList<>();
         for (Ingredient ingredient : ingredients) {
-            Ingredient foundIngredient = ingredient.getId() == null ?
+            PlanitFoodEntity planitFoodEntity = new PlanitFoodEntity(EntityType.INGREDIENT, ingredient);
+            PlanitFoodEntity foundIngredient = ingredient.getId() == null ?
                     null :
-                    dynamoDB.getMapper().load(Ingredient.class, ingredient.getId());
-            if (foundIngredient == null) {
+                    dynamoDB.getMapper().load(PlanitFoodEntity.class, planitFoodEntity.getPK(), planitFoodEntity.getSK());
+            if (foundIngredient != null) {
                 logger.info("ingredient id " + ingredient.getId() + " already in db");
                 updatedIngredients.add(addIngredient(ingredient));
             } else {
-                PlanitFoodEntity planitFoodEntity = new PlanitFoodEntity(EntityType.INGREDIENT, ingredient);
                 logger.info("Saving ingredient id " + ingredient.getId());
                 dynamoDB.getMapper().save(planitFoodEntity);
                 updatedIngredients.add(ingredient);
@@ -105,7 +106,7 @@ public class IngredientsDataHandler {
 
     public void deleteIngredient(String id) throws UnableToDeleteException {
         logger.info("Deleting ingredient id " + id);
-        List<Dish> found = dishDataHandler.getDishesByQuery(null, id, null, false);
+        List<Dish> found = dishDataHandler.getDishesByQuery(null, null, id, false);
         if (found != null & found.size() > 0) {
             throw new UnableToDeleteException(id, "ingredient is used in dish " + found.get(0).getId());
         } else {
@@ -117,13 +118,13 @@ public class IngredientsDataHandler {
 
     public List<Ingredient> findIngredientsBeginningWith(String searchString) {
         logger.info("Search for ingredient containing " + searchString);
-        Map<String, AttributeValue> eav = new HashMap();
-        eav.put(":val1", new AttributeValue().withS(searchString));
-
-        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-                .withFilterExpression("contains(SEARCH_NAME, :val1)").withExpressionAttributeValues(eav);
-
-        List<PlanitFoodEntity> matchedIngredients = dynamoDB.getMapper().scan(PlanitFoodEntity.class, scanExpression);
+        Condition rangeKeyCondition = new Condition();
+        rangeKeyCondition.withComparisonOperator(ComparisonOperator.CONTAINS)
+                .withAttributeValueList(new AttributeValue().withS(searchString));
+        DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression<PlanitFoodEntity>()
+                .withHashKeyValues(new PlanitFoodEntity(EntityType.INGREDIENT))
+                .withRangeKeyCondition("SEARCH_NAME", rangeKeyCondition);
+        List<PlanitFoodEntity> matchedIngredients = dynamoDB.getMapper().query(PlanitFoodEntity.class, queryExpression);
         logger.info("Found " + matchedIngredients.size() + " ingredients containing " + searchString);
         return matchedIngredients.stream()
                 .map(i -> PlanitFoodEntityTypeConverter.convertToIngredient(i))

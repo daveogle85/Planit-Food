@@ -4,6 +4,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.planitfood.enums.DishType;
 import com.planitfood.enums.EntityType;
 import com.planitfood.typeConverters.DishTypeTypeConverter;
+import com.planitfood.typeConverters.PlanitFoodEntityTypeConverter;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -23,7 +25,7 @@ public class PlanitFoodEntity {
     private String notes;
     private DishType dishType;
     private Float cookingTime;
-    private Quantity quantities;
+    private List<Quantity> quantities;
 
     public PlanitFoodEntity() {
     }
@@ -32,9 +34,14 @@ public class PlanitFoodEntity {
         this.PK = generatePK(type);
     }
 
-    public PlanitFoodEntity(EntityType type, String ingredientId) {
+    public PlanitFoodEntity(EntityType type, String id) {
         this.PK = generatePK(type);
-        this.SK = generateIngredientHashKey(ingredientId);
+        this.SK = generateIngredientHashKey(id);
+    }
+
+    public PlanitFoodEntity(EntityType type, String id, DishType dishType) {
+        this.PK = generatePK(type);
+        this.SK = generateDishHasKey(id, dishType);
     }
 
     public PlanitFoodEntity(EntityType type, Ingredient ingredient) {
@@ -53,7 +60,26 @@ public class PlanitFoodEntity {
         this.notes = null;
         this.dishType = null;
         this.cookingTime = null;
-        this.quantities = new Quantity(ingredient.getQuantity(), ingredient.getUnit(), ingredient.getId());
+        this.quantities = null;
+    }
+
+    public PlanitFoodEntity(EntityType type, Dish dish) {
+        String dishId = dish.getId();
+        if (dishId == null) {
+            dishId = UUID.randomUUID().toString();
+        }
+
+        this.PK = generatePK(type);
+        this.SK = generateDishHasKey(dishId, dish.getDishType());
+        this.id = dishId;
+        this.name = dish.getName();
+        this.searchName = dish.getSearchName();
+        this.dishIds = null;
+        this.notes = dish.getNotes();
+        this.dishType = dish.getDishType();
+        this.cookingTime = dish.getCookingTime();
+        this.quantities = PlanitFoodEntityTypeConverter
+                .convertIngredientsListToQuantities(dish.getIngredients());
     }
 
     @DynamoDBHashKey(attributeName = "PK")
@@ -131,10 +157,10 @@ public class PlanitFoodEntity {
 
     @DynamoDBAttribute(attributeName = "QUANTITIES")
     @DynamoDBTypeConvertedJson
-    public Quantity getQuantities() {
+    public List<Quantity> getQuantities() {
         return quantities;
     }
-    public void setQuantities(Quantity quantities) {
+    public void setQuantities(List<Quantity> quantities) {
         this.quantities = quantities;
     }
 
@@ -144,5 +170,9 @@ public class PlanitFoodEntity {
 
     private String generateIngredientHashKey(String id) {
         return "ID#" + id;
+    }
+
+    private String generateDishHasKey(String id, DishType dishType) {
+        return "DISH_TYPE#" + dishType.toString() + "#ID#" + id;
     }
 }
