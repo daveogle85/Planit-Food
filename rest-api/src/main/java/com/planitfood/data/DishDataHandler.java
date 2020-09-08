@@ -190,7 +190,7 @@ public class DishDataHandler {
             logger.info("filter by ingredient id");
             results = results.stream()
                     .filter(r -> r.getQuantities().stream()
-                    .filter(q -> q.getIngredientId() == ingredientId).findFirst().isPresent())
+                            .filter(q -> q.getIngredientId() == ingredientId).findFirst().isPresent())
                     .collect(Collectors.toList());
         }
 
@@ -225,12 +225,14 @@ public class DishDataHandler {
 
     /**
      * TEMP Override until refactor is completed
+     *
      * @param dishById
      * @return
      */
     public Dish addIngredientsToDish(Dish dishById) {
         return addIngredientsToDish(new PlanitFoodEntity(EntityType.DISH, dishById));
     }
+
     public Dish addIngredientsToDish(PlanitFoodEntity dishById) {
         TransactionLoadRequest transactionLoadRequest = new TransactionLoadRequest();
         Dish dishWithIngredients = PlanitFoodEntityTypeConverter.convertToDish(dishById);
@@ -240,8 +242,12 @@ public class DishDataHandler {
             return dishWithIngredients;
         }
 
-        quantities.forEach(quantity -> transactionLoadRequest
-                .addLoad(new PlanitFoodEntity(EntityType.INGREDIENT, quantity.getIngredientId())));
+        quantities.forEach(quantity -> {
+                    PlanitFoodEntity load = new PlanitFoodEntity(EntityType.INGREDIENT, quantity.getIngredientId());
+                    transactionLoadRequest
+                            .addLoad(load);
+                }
+        );
         List<PlanitFoodEntity> results = Transactions.executeTransactionLoad(transactionLoadRequest, dynamoDB.getMapper());
         dishWithIngredients.setIngredients(results.stream()
                 .map(i -> PlanitFoodEntityTypeConverter.convertToIngredientWithQuantity(i, quantities))

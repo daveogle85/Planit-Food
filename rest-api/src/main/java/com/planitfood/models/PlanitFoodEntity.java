@@ -5,6 +5,7 @@ import com.planitfood.enums.DishType;
 import com.planitfood.enums.EntityType;
 import com.planitfood.typeConverters.DishTypeTypeConverter;
 import com.planitfood.typeConverters.PlanitFoodEntityTypeConverter;
+import com.planitfood.typeConverters.QuantitiesTypeConverter;
 
 import java.util.List;
 import java.util.UUID;
@@ -156,7 +157,7 @@ public class PlanitFoodEntity {
     }
 
     @DynamoDBAttribute(attributeName = "QUANTITIES")
-    @DynamoDBTypeConvertedJson
+    @DynamoDBTypeConverted(converter = QuantitiesTypeConverter.class)
     public List<Quantity> getQuantities() {
         return quantities;
     }
