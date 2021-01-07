@@ -20,7 +20,7 @@ dependencies {
 	implementation 'org.springframework.security:spring-security-config'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'com.google.code.gson:gson:2.8.6'
-	implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.932')
+	implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.933')
 	implementation 'com.amazonaws:aws-java-sdk-dynamodb'
 	compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.0'
 	compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.0'
